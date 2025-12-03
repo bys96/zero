@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>끝말잇기</title>
+  </head>
+
+  <body>
+    <div><span id="order">1</span>번째 참가자</div>
+    <div>제시어: <span id="word"></span></div>
+    <input type="text" />
+    <button>입력</button>
+  </body>
+
+  <script>
+    //인원 입력
+    let num;
+    while (true) {
+      num = prompt("몇 명이 참가하나요?");
+      if (num == null) {
+        alert("인원을 입력해주세요.");
+        continue;
+      }
+
+      num = Number(num);
+
+      if (num < 2 || !Number.isInteger(num)) {
+        alert("2이상의 정수를 입력해주세요");
+        continue;
+      }
+
+      alert(`${num}을 입력하셨습니다.`);
+      const yesOrNo = confirm("입력한 값이 " + num + "가 맞습니까?");
+      if (yesOrNo) break;
+    }
+    console.log("인원 수 : ", num);
+
+    const $input = document.querySelector("input");
+    const $button = document.querySelector("button");
+    const spanWord = document.getElementById("word");
+    const spanOrder = document.getElementById("order");
+    let word;
+    let count = 1;
+    let inputWord;
+
+    const onClickButton = () => {
+      if (!word) {
+        //비어있음
+        word = inputWord;
+        console.log("제시어 입력", word);
+
+        spanWord.innerText = word;
+        spanOrder.innerText = ++count;
+
+        $input.value = "";
+      } else {
+        //비어있지않음
+        console.log("단어 입력", word);
+        if (word.at(-1) == inputWord[0]) {
+          word = inputWord;
+          spanWord.innerText = word;
+          spanOrder.innerText = ++count;
+
+          $input.value = "";
+
+          if (count == num + 1) {
+            count = 1;
+            spanOrder.innerText = count;
+          }
+        } else {
+          alert("잘못된 입력입니다.");
+        }
+      }
+      $input.focus();
+    };
+
+    $input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        onClickButton();
+      }
+    });
+
+    const onInput = (e) => {
+      inputWord = e.target.value;
+      console.log(e.target.value);
+    };
+
+    $input.addEventListener("input", onInput);
+    $button.addEventListener("click", onClickButton);
+  </script>
+</html>
