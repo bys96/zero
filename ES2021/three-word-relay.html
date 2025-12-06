@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>쿵쿵따</title>
+  </head>
+  <body>
+    <div><span id="order">1</span>번째 순서</div>
+    <div>제시어 : <span id="word"></span></div>
+    <div>
+      <input type="text" id="input" />
+      <button id="but">입력</button>
+    </div>
+  </body>
+
+  <script>
+    // 인원 입력
+    let member = 0;
+    while (true) {
+      let mem = prompt("인원을 입력해 주세요");
+      if (mem == null) {
+        alert("인원을 제대로 입력해 주세요");
+        continue;
+      }
+      member = Number(mem);
+      if (Number.isInteger(member) && member >= 2) {
+        let con = confirm(`${member}명이 맞습니까?`);
+        if (con) break;
+      } else {
+        alert("2이상의 정수를 입력해주세요.");
+        continue;
+      }
+    }
+
+    const order = document.getElementById("order");
+    const word = document.getElementById("word");
+    const input = document.getElementById("input");
+    const but = document.getElementById("but");
+
+    inputWord = word.textContent;
+
+    but.addEventListener("click", () => {
+      let count = order.textContent;
+
+      if (
+        (word.textContent.at(-1) == inputWord[0] ||
+          word.textContent.length == 0) &&
+        inputWord.length == 3
+      ) {
+        word.textContent = inputWord;
+        if (count + 1 > member) {
+          order.textContent = 1;
+        } else {
+          order.textContent = count + 1;
+        }
+      } else {
+        alert(`${order.textContent}번째 참가자는 탈락입니다.`);
+        member--;
+        order.textContent = 1;
+        if (member == 1) alert("승리하였습니다.");
+      }
+      input.value = "";
+      input.focus();
+    });
+
+    input.addEventListener("input", () => {
+      inputWord = input.value;
+    });
+  </script>
+</html>
