@@ -41,38 +41,15 @@
     const spanWord = document.getElementById("word");
     const spanOrder = document.getElementById("order");
     let word;
-    let count = 1;
     let inputWord;
+    let count;
 
     const onClickButton = () => {
-      if (!word) {
-        //비어있음
-        word = inputWord;
-        console.log("제시어 입력", word);
-
-        spanWord.innerText = word;
-        spanOrder.innerText = ++count;
-
-        $input.value = "";
+      if (!word || word.at(-1) == inputWord[0]) {
+        changeText();
       } else {
-        //비어있지않음
-        console.log("단어 입력", word);
-        if (word.at(-1) == inputWord[0]) {
-          word = inputWord;
-          spanWord.innerText = word;
-          spanOrder.innerText = ++count;
-
-          $input.value = "";
-
-          if (count == num + 1) {
-            count = 1;
-            spanOrder.innerText = count;
-          }
-        } else {
-          alert("잘못된 입력입니다.");
-        }
+        alert("잘못된 단어를 입력하였습니다.");
       }
-      $input.focus();
     };
 
     $input.addEventListener("keypress", (e) => {
@@ -88,5 +65,22 @@
 
     $input.addEventListener("input", onInput);
     $button.addEventListener("click", onClickButton);
+
+    const changeText = () => {
+      console.log("단어 입력", word);
+
+      word = inputWord;
+      count = Number(spanOrder.textContent);
+      spanWord.innerText = word;
+      spanOrder.innerText = ++count;
+      $input.value = "";
+
+      if (count == num + 1) {
+        count = 1;
+        spanOrder.innerText = count;
+      }
+
+      $input.focus();
+    };
   </script>
 </html>
