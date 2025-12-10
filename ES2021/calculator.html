@@ -159,7 +159,6 @@
     const inputOp = (e) => {
       if (op) {
         calculator();
-        num_1 = num.value;
         num_2 = null;
         num_2_check = false;
       } else {
@@ -195,7 +194,7 @@
         }
 
         num.value = result;
-        num_1 = result;
+        num_1 = Number(result);
         num_2 = null;
         num_2_check = false;
         op = null;
