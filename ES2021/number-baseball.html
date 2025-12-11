@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>숫자야구</title>
+  </head>
+  <body>
+    <form id="form">
+      <input type="text" id="input" />
+      <button id="button">확인</button>
+    </form>
+    <div id="logs"></div>
+
+    <script>
+      const $input = document.querySelector("#input");
+      const $form = document.querySelector("#form");
+      const $logs = document.querySelector("#logs");
+      const $button = document.querySelector("#button");
+      let inputNum;
+
+      const checkInputNum = () => {
+        let set = new Set(inputNum);
+        if (set.size == 4 && inputNum.length == 4) {
+          let isOneToNine = [...set].every((w) => {
+            let i = Number(w);
+            return i >= 1 && i <= 9;
+          });
+          if (isOneToNine) {
+            // 여기에 로직쓰기
+          } else {
+            alert("1~9사이의 정수를 입력해주세요");
+          }
+        } else {
+          alert("4자리의 정수를 입력해주세요");
+        }
+      };
+
+      $input.addEventListener("input", (e) => {
+        inputNum = e.target.value;
+      });
+
+      $button.addEventListener("click", checkInputNum);
+    </script>
+  </body>
+</html>

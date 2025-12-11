@@ -11,76 +11,76 @@
     <div>제시어: <span id="word"></span></div>
     <input type="text" />
     <button>입력</button>
+
+    <script>
+      //인원 입력
+      let num;
+      while (true) {
+        num = prompt("몇 명이 참가하나요?");
+        if (num == null) {
+          alert("인원을 입력해주세요.");
+          continue;
+        }
+
+        num = Number(num);
+
+        if (num < 2 || !Number.isInteger(num)) {
+          alert("2이상의 정수를 입력해주세요");
+          continue;
+        }
+
+        alert(`${num}을 입력하셨습니다.`);
+        const yesOrNo = confirm("입력한 값이 " + num + "가 맞습니까?");
+        if (yesOrNo) break;
+      }
+      console.log("인원 수 : ", num);
+
+      const $input = document.querySelector("input");
+      const $button = document.querySelector("button");
+      const spanWord = document.getElementById("word");
+      const spanOrder = document.getElementById("order");
+      let word;
+      let inputWord;
+      let count;
+
+      const onClickButton = () => {
+        if (!word || word.at(-1) == inputWord[0]) {
+          changeText();
+        } else {
+          alert("잘못된 단어를 입력하였습니다.");
+        }
+      };
+
+      $input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          onClickButton();
+        }
+      });
+
+      const onInput = (e) => {
+        inputWord = e.target.value;
+        console.log(e.target.value);
+      };
+
+      $input.addEventListener("input", onInput);
+      $button.addEventListener("click", onClickButton);
+
+      const changeText = () => {
+        console.log("단어 입력", word);
+
+        word = inputWord;
+        count = Number(spanOrder.textContent);
+        spanWord.innerText = word;
+        spanOrder.innerText = ++count;
+        $input.value = "";
+
+        if (count == num + 1) {
+          count = 1;
+          spanOrder.innerText = count;
+        }
+
+        $input.focus();
+      };
+    </script>
   </body>
-
-  <script>
-    //인원 입력
-    let num;
-    while (true) {
-      num = prompt("몇 명이 참가하나요?");
-      if (num == null) {
-        alert("인원을 입력해주세요.");
-        continue;
-      }
-
-      num = Number(num);
-
-      if (num < 2 || !Number.isInteger(num)) {
-        alert("2이상의 정수를 입력해주세요");
-        continue;
-      }
-
-      alert(`${num}을 입력하셨습니다.`);
-      const yesOrNo = confirm("입력한 값이 " + num + "가 맞습니까?");
-      if (yesOrNo) break;
-    }
-    console.log("인원 수 : ", num);
-
-    const $input = document.querySelector("input");
-    const $button = document.querySelector("button");
-    const spanWord = document.getElementById("word");
-    const spanOrder = document.getElementById("order");
-    let word;
-    let inputWord;
-    let count;
-
-    const onClickButton = () => {
-      if (!word || word.at(-1) == inputWord[0]) {
-        changeText();
-      } else {
-        alert("잘못된 단어를 입력하였습니다.");
-      }
-    };
-
-    $input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        onClickButton();
-      }
-    });
-
-    const onInput = (e) => {
-      inputWord = e.target.value;
-      console.log(e.target.value);
-    };
-
-    $input.addEventListener("input", onInput);
-    $button.addEventListener("click", onClickButton);
-
-    const changeText = () => {
-      console.log("단어 입력", word);
-
-      word = inputWord;
-      count = Number(spanOrder.textContent);
-      spanWord.innerText = word;
-      spanOrder.innerText = ++count;
-      $input.value = "";
-
-      if (count == num + 1) {
-        count = 1;
-        spanOrder.innerText = count;
-      }
-
-      $input.focus();
-    };
-  </script>
 </html>

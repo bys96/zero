@@ -14,82 +14,82 @@
     </div>
     <hr />
     <div>남은인원 : <span id="remain"></span>명</div>
-  </body>
 
-  <script>
-    // 인원 입력
-    let member = 0;
-    while (true) {
-      let mem = prompt("인원을 입력해 주세요");
-      if (mem == null) {
-        alert("인원을 제대로 입력해 주세요");
-        continue;
-      }
-      member = Number(mem);
-      if (Number.isInteger(member) && member >= 2) {
-        let con = confirm(`${member}명이 맞습니까?`);
-        if (con) break;
-      } else {
-        alert("2이상의 정수를 입력해주세요.");
-        continue;
-      }
-    }
-
-    // let MemberArr = [];
-    // for(let i=1; i<=member; i++){
-    //   MemberArr.push(i);
-    // }
-
-    const order = document.getElementById("order");
-    const word = document.getElementById("word");
-    const input = document.getElementById("input");
-    const but = document.getElementById("but");
-    const remain = document.getElementById("remain");
-
-    let inputWord = word.textContent;
-
-    remain.textContent = member;
-
-    but.addEventListener("click", () => {
-      let count = Number(order.textContent);
-      if (word.textContent.length == 0 && inputWord.length != 3) {
-        alert("3글자의 제시어를 입력해주세요.");
-      } else if (
-        (word.textContent.at(-1) == inputWord[0] ||
-          word.textContent.length == 0) &&
-        inputWord.length == 3
-      ) {
-        word.textContent = inputWord;
-        if (count + 1 > member) {
-          order.textContent = 1;
+    <script>
+      // 인원 입력
+      let member = 0;
+      while (true) {
+        let mem = prompt("인원을 입력해 주세요");
+        if (mem == null) {
+          alert("인원을 제대로 입력해 주세요");
+          continue;
+        }
+        member = Number(mem);
+        if (Number.isInteger(member) && member >= 2) {
+          let con = confirm(`${member}명이 맞습니까?`);
+          if (con) break;
         } else {
-          order.textContent = count + 1;
-        }
-      } else {
-        alert(`${order.textContent}번째 참가자는 탈락입니다.`);
-        member--;
-        remain.textContent = member;
-        order.textContent = 1;
-        word.textContent = "";
-
-        if (member == 1) {
-          setTimeout(() => {
-            alert("축하합니다. 승리하셨습니다.");
-          }, 100);
+          alert("2이상의 정수를 입력해주세요.");
+          continue;
         }
       }
-      input.value = "";
+
+      // let MemberArr = [];
+      // for(let i=1; i<=member; i++){
+      //   MemberArr.push(i);
+      // }
+
+      const order = document.getElementById("order");
+      const word = document.getElementById("word");
+      const input = document.getElementById("input");
+      const but = document.getElementById("but");
+      const remain = document.getElementById("remain");
+
+      let inputWord = word.textContent;
+
+      remain.textContent = member;
+
+      but.addEventListener("click", () => {
+        let count = Number(order.textContent);
+        if (word.textContent.length == 0 && inputWord.length != 3) {
+          alert("3글자의 제시어를 입력해주세요.");
+        } else if (
+          (word.textContent.at(-1) == inputWord[0] ||
+            word.textContent.length == 0) &&
+          inputWord.length == 3
+        ) {
+          word.textContent = inputWord;
+          if (count + 1 > member) {
+            order.textContent = 1;
+          } else {
+            order.textContent = count + 1;
+          }
+        } else {
+          alert(`${order.textContent}번째 참가자는 탈락입니다.`);
+          member--;
+          remain.textContent = member;
+          order.textContent = 1;
+          word.textContent = "";
+
+          if (member == 1) {
+            setTimeout(() => {
+              alert("축하합니다. 승리하셨습니다.");
+            }, 100);
+          }
+        }
+        input.value = "";
+        input.focus();
+      });
+
+      input.addEventListener("input", () => {
+        inputWord = input.value;
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") but.click();
+      });
+
       input.focus();
-    });
-
-    input.addEventListener("input", () => {
-      inputWord = input.value;
-    });
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") but.click();
-    });
-
-    input.focus();
-  </script>
+    </script>
+  </body>
 </html>

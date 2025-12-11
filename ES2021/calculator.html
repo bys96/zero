@@ -91,115 +91,116 @@
         <button id="but_*">*</button>
       </div>
     </div>
-  </body>
-  <script>
-    let num_1;
-    let num_2;
-    let num_2_check = false;
-    let op;
-    let number;
 
-    let num = document.getElementById("num");
-    let operator = document.getElementById("operator");
+    <script>
+      let num_1;
+      let num_2;
+      let num_2_check = false;
+      let op;
+      let number;
 
-    const but_1 = document.getElementById("but_1");
-    const but_2 = document.getElementById("but_2");
-    const but_3 = document.getElementById("but_3");
-    const but_4 = document.getElementById("but_4");
-    const but_5 = document.getElementById("but_5");
-    const but_6 = document.getElementById("but_6");
-    const but_7 = document.getElementById("but_7");
-    const but_8 = document.getElementById("but_8");
-    const but_9 = document.getElementById("but_9");
-    const but_0 = document.getElementById("but_0");
-    const but_pl = document.getElementById("but_+");
-    const but_mi = document.getElementById("but_-");
-    const but_mul = document.getElementById("but_*");
-    const but_di = document.getElementById("but_/");
-    const but_eq = document.getElementById("but_=");
-    const but_C = document.getElementById("but_C");
+      let num = document.getElementById("num");
+      let operator = document.getElementById("operator");
 
-    but_1.addEventListener("click", () => appendNumber(but_1.textContent));
-    but_2.addEventListener("click", () => appendNumber(but_2.textContent));
-    but_3.addEventListener("click", () => appendNumber(but_3.textContent));
-    but_4.addEventListener("click", () => appendNumber(but_4.textContent));
-    but_5.addEventListener("click", () => appendNumber(but_5.textContent));
-    but_6.addEventListener("click", () => appendNumber(but_6.textContent));
-    but_7.addEventListener("click", () => appendNumber(but_7.textContent));
-    but_8.addEventListener("click", () => appendNumber(but_8.textContent));
-    but_9.addEventListener("click", () => appendNumber(but_9.textContent));
-    but_0.addEventListener("click", () => appendNumber(but_0.textContent));
+      const but_1 = document.getElementById("but_1");
+      const but_2 = document.getElementById("but_2");
+      const but_3 = document.getElementById("but_3");
+      const but_4 = document.getElementById("but_4");
+      const but_5 = document.getElementById("but_5");
+      const but_6 = document.getElementById("but_6");
+      const but_7 = document.getElementById("but_7");
+      const but_8 = document.getElementById("but_8");
+      const but_9 = document.getElementById("but_9");
+      const but_0 = document.getElementById("but_0");
+      const but_pl = document.getElementById("but_+");
+      const but_mi = document.getElementById("but_-");
+      const but_mul = document.getElementById("but_*");
+      const but_di = document.getElementById("but_/");
+      const but_eq = document.getElementById("but_=");
+      const but_C = document.getElementById("but_C");
 
-    but_pl.addEventListener("click", () => inputOp(but_pl));
-    but_mi.addEventListener("click", () => inputOp(but_mi));
-    but_mul.addEventListener("click", () => inputOp(but_mul));
-    but_di.addEventListener("click", () => inputOp(but_di));
+      but_1.addEventListener("click", () => appendNumber(but_1.textContent));
+      but_2.addEventListener("click", () => appendNumber(but_2.textContent));
+      but_3.addEventListener("click", () => appendNumber(but_3.textContent));
+      but_4.addEventListener("click", () => appendNumber(but_4.textContent));
+      but_5.addEventListener("click", () => appendNumber(but_5.textContent));
+      but_6.addEventListener("click", () => appendNumber(but_6.textContent));
+      but_7.addEventListener("click", () => appendNumber(but_7.textContent));
+      but_8.addEventListener("click", () => appendNumber(but_8.textContent));
+      but_9.addEventListener("click", () => appendNumber(but_9.textContent));
+      but_0.addEventListener("click", () => appendNumber(but_0.textContent));
 
-    but_eq.addEventListener("click", () => {
-      calculator();
-    });
+      but_pl.addEventListener("click", () => inputOp(but_pl));
+      but_mi.addEventListener("click", () => inputOp(but_mi));
+      but_mul.addEventListener("click", () => inputOp(but_mul));
+      but_di.addEventListener("click", () => inputOp(but_di));
 
-    but_C.addEventListener("click", () => {
-      num.value = 0;
-      num_1 = null;
-      num_2 = null;
-      num_2_check = false;
-      op = null;
-      operator.value = "";
-      console.log("초기화");
-    });
-
-    const appendNumber = (n) => {
-      if (num.value == "0" || num.value == num_1) num.value = n;
-      else num.value += n;
-      console.log("입력값 : ", num.value);
-      if (num_1) num_2_check = true;
-    };
-
-    const inputOp = (e) => {
-      if (op) {
+      but_eq.addEventListener("click", () => {
         calculator();
-        num_2 = null;
-        num_2_check = false;
-      } else {
-        num_1 = Number(num.value);
-      }
-      op = e.textContent;
-      operator.value = op;
-      console.log(`num1:${num_1}, op:${op}`);
-    };
+      });
 
-    const calculator = () => {
-      if (op && num_2_check) {
-        num_2 = Number(num.value);
-
-        let result;
-        switch (op) {
-          case "+":
-            result = num_1 + num_2;
-            break;
-          case "-":
-            result = num_1 - num_2;
-            break;
-          case "*":
-            result = num_1 * num_2;
-            break;
-          case "/":
-            if (num_2 == 0) {
-              alert("0으로 나눌 수 없습니다.");
-              return;
-            }
-            result = Math.round((num_1 / num_2) * 1000) / 1000;
-            break;
-        }
-
-        num.value = result;
-        num_1 = Number(result);
+      but_C.addEventListener("click", () => {
+        num.value = 0;
+        num_1 = null;
         num_2 = null;
         num_2_check = false;
         op = null;
         operator.value = "";
-      }
-    };
-  </script>
+        console.log("초기화");
+      });
+
+      const appendNumber = (n) => {
+        if (num.value == "0" || num.value == num_1) num.value = n;
+        else num.value += n;
+        console.log("입력값 : ", num.value);
+        if (num_1) num_2_check = true;
+      };
+
+      const inputOp = (e) => {
+        if (op) {
+          calculator();
+          num_2 = null;
+          num_2_check = false;
+        } else {
+          num_1 = Number(num.value);
+        }
+        op = e.textContent;
+        operator.value = op;
+        console.log(`num1:${num_1}, op:${op}`);
+      };
+
+      const calculator = () => {
+        if (op && num_2_check) {
+          num_2 = Number(num.value);
+
+          let result;
+          switch (op) {
+            case "+":
+              result = num_1 + num_2;
+              break;
+            case "-":
+              result = num_1 - num_2;
+              break;
+            case "*":
+              result = num_1 * num_2;
+              break;
+            case "/":
+              if (num_2 == 0) {
+                alert("0으로 나눌 수 없습니다.");
+                return;
+              }
+              result = Math.round((num_1 / num_2) * 1000) / 1000;
+              break;
+          }
+
+          num.value = result;
+          num_1 = Number(result);
+          num_2 = null;
+          num_2_check = false;
+          op = null;
+          operator.value = "";
+        }
+      };
+    </script>
+  </body>
 </html>
