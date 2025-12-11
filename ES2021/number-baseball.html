@@ -18,6 +18,8 @@
       const $logs = document.querySelector("#logs");
       const $button = document.querySelector("#button");
       let inputNum;
+      let num = randomNumber();
+      console.log("주어진 숫자는 ", num);
 
       const checkInputNum = () => {
         let set = new Set(inputNum);
@@ -28,19 +30,63 @@
           });
           if (isOneToNine) {
             // 여기에 로직쓰기
+            checkNum(inputNum);
           } else {
-            alert("1~9사이의 정수를 입력해주세요");
+            alert("1~9 사이의 각자 다른 정수 4개를 입력해주세요.");
           }
         } else {
-          alert("4자리의 정수를 입력해주세요");
+          alert("1~9 사이의 각자 다른 정수 4개를 입력해주세요.");
         }
+        $input.value = "";
+        $input.focus();
       };
+
+      function checkNum(n) {
+        let strikeCount = 0;
+        let ballCount = 0;
+
+        let numArr = num.split("");
+        let inputNumArr = n.split("");
+
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (numArr[i] == inputNumArr[j]) {
+              if (i == j) strikeCount++;
+              else ballCount++;
+            }
+          }
+        }
+
+        if (strikeCount == 4) {
+          $logs.innerHTML += "축하합니다. 홈런입니다!";
+        } else {
+          $logs.innerHTML += `${n} 은 S : ${strikeCount}, B : ${ballCount} 입니다.<br />`;
+        }
+      }
 
       $input.addEventListener("input", (e) => {
         inputNum = e.target.value;
       });
 
-      $button.addEventListener("click", checkInputNum);
+      $form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        checkInputNum();
+      });
+
+      $input.focus();
+
+      function randomNumber() {
+        let arr = [];
+        let oneNineArr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        while (arr.length < 4) {
+          let len = oneNineArr.length;
+          let idx = Math.floor(Math.random() * len);
+          arr.push(oneNineArr[idx]);
+          oneNineArr.splice(idx, 1);
+        }
+        return arr.join("");
+      }
     </script>
   </body>
 </html>
