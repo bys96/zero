@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로또 추첨기</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      #lotto {
+        width: 90%;
+        min-width: 300px;
+        aspect-ratio: 16/9;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px gray solid;
+        margin-top: 10%;
+        justify-self: center;
+        margin: 10% auto;
+        position: relative;
+        padding-left: 5%;
+      }
+      #input_form {
+        width: 90%;
+        height: 20%;
+        background-color: aquamarine;
+        display: flex;
+        justify-content: space-between;
+        margin: 5% 0;
+      }
+      #input_form input {
+        width: 80%;
+        height: 100%;
+        border-radius: 5px;
+        text-align: end;
+        padding: 5%;
+        font-size: clamp(16px, 3vw, 36px);
+      }
+      #input_form input::placeholder {
+        text-align: center;
+      }
+      #input_form button {
+        width: 18%;
+        font-size: clamp(16px, 2.5vw, 32px);
+        cursor: pointer;
+      }
+      #input_form button:hover {
+        transform: translateY(-1px);
+      }
+      #input_form button:active {
+        transform: scale(0.97);
+      }
+      .numbers_div {
+        background-color: antiquewhite;
+        height: 25%;
+        display: flex;
+        align-items: center;
+        gap: 1%;
+        font-size: clamp(16px, 2.5vw, 32px);
+      }
+      .number {
+        border: 1px black solid;
+        border-radius: 50%;
+        height: 75%;
+        aspect-ratio: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: clamp(15px, 3vw, 30px);
+        background-color: azure;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="lotto">
+      <form id="input_form">
+        <input type="text" placeholder="숫자 6개를 입력해주세요." />
+        <button>추첨</button>
+      </form>
+      <div class="numbers_div" id="lottery_div">
+        <div id="lottery_numbers">당첨 숫자:</div>
+      </div>
+      <div class="numbers_div" id="bonus_div">
+        <div id="bonus_number">보너스 숫자:</div>
+      </div>
+    </div>
+    <script>
+      const $input = document.querySelector("#input_form input");
+      const input_form = document.querySelector("#input_form");
+      const lottery_div = document.querySelector("#lottery_div");
+      const bonus_div = document.querySelector("#bonus_div");
+
+      let inputNumbers;
+      let inputArr;
+      let lottoArr;
+      let isInputChecked = false;
+      let bonus;
+
+      function handleSubmit() {
+        saveInput();
+        checkInput(inputNumbers);
+        if (isInputChecked) {
+          makeNumbers();
+          makeLottoDiv();
+          checkNumbers();
+          console.log(inputArr);
+          console.log(lottoArr);
+        }
+      }
+
+      const saveInput = () => {
+        inputNumbers = $input.value;
+      };
+
+      const checkInput = (str) => {
+        if (!/^[\d\s.]+$/.test(str)) {
+          alert("숫자만 입력하세요");
+          return;
+        }
+
+        if (str.includes(".")) {
+          alert("소수는 입력할 수 없습니다");
+          return;
+        }
+
+        const arr = str.match(/\d+/g)?.map(Number);
+
+        if (!arr || arr.length !== 6) {
+          alert("숫자 6개를 입력해주세요");
+          return;
+        }
+
+        if (new Set(arr).size !== 6) {
+          alert("중복되지 않은 숫자를 입력해주세요");
+          return;
+        }
+
+        if (!arr.every((v) => Number.isInteger(v) && v >= 1 && v <= 45)) {
+          alert("1~45 사이의 정수를 입력해주세요.");
+          return;
+        }
+
+        inputArr = arr;
+        isInputChecked = true;
+      };
+
+      const makeNumbers = () => {
+        let set = new Set();
+        while (set.size < 7) {
+          set.add(Math.floor(Math.random() * 45) + 1);
+        }
+        lottoArr = [...set];
+        bonus = lottoArr.at(-1);
+        lottoArr = lottoArr.slice(0, 6);
+        console.log("로또숫자는 : ", lottoArr, " 보너스는 : ", bonus);
+      };
+
+      const makeLottoDiv = () => {
+        lottoArr.forEach((v, i) => {
+          setTimeout(() => {
+            const div = document.createElement("div");
+            div.className = "number";
+            div.textContent = v;
+            lottery_div.appendChild(div);
+          }, 1000 * (i + 1));
+        });
+        setTimeout(() => {
+          const div = document.createElement("div");
+          div.className = "number";
+          div.textContent = bonus;
+          bonus_div.appendChild(div);
+        }, 1000 * (lottoArr.length + 1));
+      };
+
+      const checkNumbers = () => {
+        let lottoCount = 0;
+        let bonusCount = 0;
+
+        inputArr.forEach((v) => {
+          if (lottoArr.includes(v)) lottoCount++;
+        });
+        if (inputArr.includes(bonus)) bonusCount++;
+
+        if (lottoCount == 6) {
+          alert("1등 당첨입니다. 축하드립니다!");
+        } else if (lottoCount == 5 && bonusCount == 1) {
+          alert("2등 당첨입니다. 축하드립니다!)");
+        } else if (lottoCount == 5) {
+          alert("3등 당첨입니다. 축하드립니다!)");
+        } else if (lottoCount == 4) {
+          alert("4등 당첨입니다. 축하드립니다!)");
+        } else if (lottoCount == 3) {
+          alert("5등 당첨입니다. 축하드립니다!)");
+        } else {
+          alert("아쉽게도 낙첨되셨습니다.");
+        }
+      };
+
+      input_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        handleSubmit();
+      });
+    </script>
+  </body>
+</html>
