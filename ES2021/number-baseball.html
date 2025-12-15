@@ -87,6 +87,8 @@
       let inputNum = "";
       let num = randomNumber();
       let count;
+      let isGameEnd = false;
+      let outCount = 0;
 
       while (true) {
         count = Number(prompt("20 이하의 양의 정수를 입력하세요"));
@@ -143,6 +145,16 @@
           setTimeout(() => {
             alert("축하합니다. 홈런입니다!");
           }, 0);
+          isGameEnd = true;
+        } else if (strikeCount == 0 && ballCount == 0) {
+          outCount++;
+          $logs.innerHTML += `아웃입니다.  아웃카운트가 3이될시 패배합니다.<br />아웃 : ${outCount}<br />`;
+          if (outCount == 3) {
+            setTimeout(() => {
+              alert(`아쉽게도 패배하였습니다. 정답은 ${num}입니다.`);
+            }, 0);
+            isGameEnd = true;
+          }
         } else {
           $logs.innerHTML += `${n} 은 S : ${strikeCount}, B : ${ballCount} 입니다.<br />`;
           $count.textContent = count;
@@ -150,18 +162,24 @@
             setTimeout(() => {
               alert(`아쉽게도 패배하였습니다. 정답은 ${num}입니다.`);
             }, 0);
+            isGameEnd = true;
           }
         }
       }
 
-      $input.addEventListener("input", (e) => {
+      const handleInput = (e) => {
         inputNum = e.target.value;
-      });
-
-      $form.addEventListener("submit", (e) => {
+      };
+      const handleSubmit = (e) => {
         e.preventDefault();
-        checkInputNum();
-      });
+        if (!isGameEnd) {
+          checkInputNum();
+        }
+      };
+
+      $input.addEventListener("input", handleInput);
+
+      $form.addEventListener("submit", handleSubmit);
 
       $input.focus();
 
