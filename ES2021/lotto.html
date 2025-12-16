@@ -12,21 +12,23 @@
       #lotto {
         width: 90%;
         min-width: 300px;
+        max-width: 600px;
         aspect-ratio: 16/9;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        border: 1px gray solid;
+        border: 2px rgb(0, 0, 0) solid;
+        border-radius: 10px;
         margin-top: 10%;
         justify-self: center;
         margin: 10% auto;
         position: relative;
-        padding-left: 5%;
+        padding: 0 min(3%, 2rem);
+        background-color: rgb(255, 238, 220);
       }
       #input_form {
-        width: 90%;
+        width: 100%;
         height: 20%;
-        background-color: aquamarine;
         display: flex;
         justify-content: space-between;
         margin: 5% 0;
@@ -37,14 +39,14 @@
         border-radius: 5px;
         text-align: end;
         padding: 5%;
-        font-size: clamp(16px, 3vw, 36px);
+        font-size: clamp(16px, 2.5vw, 24px);
       }
       #input_form input::placeholder {
         text-align: center;
       }
       #input_form button {
         width: 18%;
-        font-size: clamp(16px, 2.5vw, 32px);
+        font-size: clamp(16px, 2.5vw, 20px);
         cursor: pointer;
       }
       #input_form button:hover {
@@ -53,13 +55,19 @@
       #input_form button:active {
         transform: scale(0.97);
       }
+      #input_form button:disabled {
+        background-color: rgb(108, 108, 108);
+        color: white;
+      }
       .numbers_div {
-        background-color: antiquewhite;
+        background-color: rgb(255, 244, 232);
+        border: 1px rgb(255, 232, 208) solid;
+        border-radius: 5px;
         height: 25%;
         display: flex;
         align-items: center;
         gap: 1%;
-        font-size: clamp(16px, 2.5vw, 32px);
+        font-size: clamp(16px, 2.5vw, 20px);
       }
       .number {
         border: 1px black solid;
@@ -69,7 +77,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: clamp(15px, 3vw, 30px);
+        font-size: clamp(15px, 2.5vw, 20px);
         background-color: azure;
       }
     </style>
@@ -89,6 +97,7 @@
     </div>
     <script>
       const $input = document.querySelector("#input_form input");
+      const $button = document.querySelector("#input_form button");
       const input_form = document.querySelector("#input_form");
       const lottery_div = document.querySelector("#lottery_div");
       const bonus_div = document.querySelector("#bonus_div");
@@ -96,55 +105,58 @@
       let inputNumbers;
       let inputArr;
       let lottoArr;
-      let isInputChecked = false;
+      let isRunning = false;
       let bonus;
 
       function handleSubmit() {
-        saveInput();
-        checkInput(inputNumbers);
-        if (isInputChecked) {
+        inputNumbers = $input.value;
+        if (checkInput(inputNumbers)) {
+          isRunning = true;
+          $button.disabled = true;
+
+          clearNumbers();
           makeNumbers();
-          makeLottoDiv();
-          checkNumbers();
+          makeLottoDiv(checkNumbers);
           console.log(inputArr);
           console.log(lottoArr);
         }
       }
 
-      const saveInput = () => {
-        inputNumbers = $input.value;
-      };
-
       const checkInput = (str) => {
-        if (!/^[\d\s.]+$/.test(str)) {
+        if (!/^[\d\s.,-]+$/.test(str)) {
           alert("숫자만 입력하세요");
-          return;
+          return false;
         }
 
         if (str.includes(".")) {
           alert("소수는 입력할 수 없습니다");
-          return;
+          return false;
+        }
+
+        if (str.includes("-")) {
+          alert("음수는 입력할 수 없습니다");
+          return false;
         }
 
         const arr = str.match(/\d+/g)?.map(Number);
 
         if (!arr || arr.length !== 6) {
           alert("숫자 6개를 입력해주세요");
-          return;
+          return false;
         }
 
         if (new Set(arr).size !== 6) {
           alert("중복되지 않은 숫자를 입력해주세요");
-          return;
+          return false;
         }
 
         if (!arr.every((v) => Number.isInteger(v) && v >= 1 && v <= 45)) {
           alert("1~45 사이의 정수를 입력해주세요.");
-          return;
+          return false;
         }
 
         inputArr = arr;
-        isInputChecked = true;
+        return true;
       };
 
       const makeNumbers = () => {
@@ -158,7 +170,7 @@
         console.log("로또숫자는 : ", lottoArr, " 보너스는 : ", bonus);
       };
 
-      const makeLottoDiv = () => {
+      const makeLottoDiv = (func) => {
         lottoArr.forEach((v, i) => {
           setTimeout(() => {
             const div = document.createElement("div");
@@ -173,6 +185,12 @@
           div.textContent = bonus;
           bonus_div.appendChild(div);
         }, 1000 * (lottoArr.length + 1));
+
+        setTimeout(() => {
+          func();
+          isRunning = false;
+          $button.disabled = false;
+        }, 1000 * (lottoArr.length + 2));
       };
 
       const checkNumbers = () => {
@@ -199,10 +217,17 @@
         }
       };
 
+      const clearNumbers = () => {
+        lottery_div.innerHTML = '<div id="lottery_numbers">당첨 숫자:</div>';
+        bonus_div.innerHTML = '<div id="bonus_number">보너스 숫자:</div>';
+      };
+
       input_form.addEventListener("submit", (e) => {
         e.preventDefault();
-        handleSubmit();
+        if (!isRunning) handleSubmit();
       });
+
+      $input.focus();
     </script>
   </body>
 </html>
