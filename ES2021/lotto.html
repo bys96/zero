@@ -117,8 +117,6 @@
           clearNumbers();
           makeNumbers();
           makeLottoDiv(checkNumbers);
-          console.log(inputArr);
-          console.log(lottoArr);
         }
       }
 
@@ -159,6 +157,11 @@
         return true;
       };
 
+      const setTimeoutPromise = (ms) =>
+        new Promise((resolve, reject) => {
+          setTimeout(resolve, ms);
+        });
+
       const makeNumbers = () => {
         let set = new Set();
         while (set.size < 7) {
@@ -167,30 +170,30 @@
         lottoArr = [...set];
         bonus = lottoArr.at(-1);
         lottoArr = lottoArr.slice(0, 6);
-        console.log("로또숫자는 : ", lottoArr, " 보너스는 : ", bonus);
       };
 
-      const makeLottoDiv = (func) => {
-        lottoArr.forEach((v, i) => {
-          setTimeout(() => {
-            const div = document.createElement("div");
-            div.className = "number";
-            div.textContent = v;
-            lottery_div.appendChild(div);
-          }, 1000 * (i + 1));
-        });
-        setTimeout(() => {
+      const makeLottoDiv = async (func) => {
+        for (let v of lottoArr) {
+          await setTimeoutPromise(1000);
           const div = document.createElement("div");
           div.className = "number";
-          div.textContent = bonus;
-          bonus_div.appendChild(div);
-        }, 1000 * (lottoArr.length + 1));
+          div.textContent = v;
+          lottery_div.appendChild(div);
+        }
 
-        setTimeout(() => {
-          func();
-          isRunning = false;
-          $button.disabled = false;
-        }, 1000 * (lottoArr.length + 2));
+        await setTimeoutPromise(1000);
+        const div = document.createElement("div");
+        div.className = "number";
+        div.textContent = bonus;
+        bonus_div.appendChild(div);
+
+        await setTimeoutPromise(1000);
+        func();
+        isRunning = false;
+        $button.disabled = false;
+        console.log("내 번호는 ", inputArr);
+        console.log("로또번호는 ", lottoArr);
+        console.log("보너스번호는 ", bonus);
       };
 
       const checkNumbers = () => {
@@ -215,6 +218,7 @@
         } else {
           alert("아쉽게도 낙첨되셨습니다.");
         }
+        console.log(`당첨 : ${lottoCount}\n보너스 : ${bonusCount}`);
       };
 
       const clearNumbers = () => {
