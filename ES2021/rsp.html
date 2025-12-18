@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>가위바위보</title>
+    <style>
+      #computer {
+        width: 142px;
+        height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="computer"></div>
+    <div>
+      <button id="scissors" class="btn">가위</button>
+      <button id="rock" class="btn">바위</button>
+      <button id="paper" class="btn">보</button>
+    </div>
+    <div id="score">0</div>
+
+    <script>
+      const $computer = document.querySelector("#computer");
+      const $scissors = document.querySelector("#scissors");
+      const $rock = document.querySelector("#rock");
+      const $paper = document.querySelector("#paper");
+      const $btn = document.querySelectorAll(".btn");
+      const $score = document.querySelector("#score");
+
+      const IMG_URL = "./images/rsp.png";
+      $computer.style.background = `url(${IMG_URL}) 0 0`;
+      $computer.style.backgroundSize = "auto 200px";
+
+      const rspX = {
+        scissors: "0",
+        rock: "-220px",
+        paper: "-440px",
+      };
+
+      let coord = "scissors";
+      let score = 0;
+      let interval;
+
+      async function handleClick(e) {
+        controlBtns(true);
+        stopRSP();
+        calc(e.currentTarget.id);
+        await setTimeoutPromise(1000);
+        startRSP();
+        controlBtns(false);
+      }
+
+      function startRSP() {
+        interval = setInterval(() => {
+          if (coord == "scissors") {
+            coord = "rock";
+          } else if (coord == "rock") {
+            coord = "paper";
+          } else if (coord == "paper") {
+            coord = "scissors";
+          }
+          $computer.style.background = `url(${IMG_URL}) ${rspX[coord]} 0`;
+          $computer.style.backgroundSize = "auto 200px";
+        }, 55);
+      }
+
+      async function stopRSP() {
+        clearInterval(interval);
+        await setTimeoutPromise(0);
+      }
+
+      function calc(my) {
+        const rspWin = {
+          scissors: "paper",
+          paper: "rock",
+          rock: "scissors",
+        };
+        let result = "draw";
+
+        if (rspWin[my] == coord) {
+          score++;
+          result = "win";
+        }
+        if (rspWin[coord] == my) {
+          score--;
+          result = "lose";
+        }
+
+        $score.textContent = score;
+        console.log(`${my} vs ${coord}, ${result}`);
+      }
+
+      const extractNumber = (x) => Number(String(x).match(/-?\d+/)?.[0]);
+
+      const setTimeoutPromise = (ms) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+
+      const controlBtns = (state) => {
+        $btn.forEach((btn) => {
+          btn.disabled = state;
+        });
+      };
+
+      $btn.forEach((btn) => {
+        btn.addEventListener("click", handleClick);
+      });
+
+      startRSP();
+    </script>
+  </body>
+</html>
