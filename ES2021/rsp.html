@@ -5,20 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>가위바위보</title>
     <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-top: 20vh;
+      }
       #computer {
         width: 142px;
         height: 200px;
+      }
+      #buttons {
+        margin: 20px 0;
+        display: flex;
+        width: 142px;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #buttons button {
+        width: 40px;
+      }
+      #scoreDiv {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 142px;
+      }
+      .score {
+        flex: 1;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #log {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 200px;
+        margin-top: 20px;
       }
     </style>
   </head>
   <body>
     <div id="computer"></div>
-    <div>
+    <div id="buttons">
       <button id="scissors" class="btn">가위</button>
       <button id="rock" class="btn">바위</button>
       <button id="paper" class="btn">보</button>
     </div>
-    <div id="score">0</div>
+    <div id="scoreDiv">
+      <div class="score">점수</div>
+      <div id="myScore" class="score">0</div>
+      <div id="computerScore" class="score">0</div>
+    </div>
+    <div id="log"></div>
 
     <script>
       const $computer = document.querySelector("#computer");
@@ -26,7 +68,9 @@
       const $rock = document.querySelector("#rock");
       const $paper = document.querySelector("#paper");
       const $btn = document.querySelectorAll(".btn");
-      const $score = document.querySelector("#score");
+      const $myScore = document.querySelector("#myScore");
+      const $computerScore = document.querySelector("#computerScore");
+      const $log = document.querySelector("#log");
 
       const IMG_URL = "./images/rsp.png";
       $computer.style.background = `url(${IMG_URL}) 0 0`;
@@ -39,8 +83,10 @@
       };
 
       let coord = "scissors";
-      let score = 0;
+      let myScore = 0;
+      let computerScore = 0;
       let interval;
+      let isEnd = false;
 
       async function handleClick(e) {
         controlBtns(true);
@@ -76,19 +122,29 @@
           paper: "rock",
           rock: "scissors",
         };
-        let result = "draw";
+        let result = "무승부";
 
         if (rspWin[my] == coord) {
-          score++;
-          result = "win";
+          myScore++;
+          result = "승";
+          $myScore.textContent = myScore;
         }
         if (rspWin[coord] == my) {
-          score--;
-          result = "lose";
+          computerScore++;
+          result = "패";
+          $computerScore.textContent = computerScore;
         }
 
-        $score.textContent = score;
-        console.log(`${my} vs ${coord}, ${result}`);
+        if (myScore == 3) {
+          result = "축하합니다 승리하셨습니다.";
+          isEnd = true;
+        }
+        if (computerScore == 3) {
+          result = "아쉽게도 패배하셨습니다.";
+          isEnd = true;
+        }
+
+        $log.textContent = result;
       }
 
       const extractNumber = (x) => Number(String(x).match(/-?\d+/)?.[0]);
@@ -97,9 +153,13 @@
         new Promise((resolve) => setTimeout(resolve, ms));
 
       const controlBtns = (state) => {
-        $btn.forEach((btn) => {
-          btn.disabled = state;
-        });
+        if (!isEnd) {
+          $btn.forEach((btn) => {
+            btn.disabled = state;
+          });
+        } else {
+          stopRSP();
+        }
       };
 
       $btn.forEach((btn) => {
