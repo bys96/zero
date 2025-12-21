@@ -19,11 +19,13 @@
         color: white;
         font-size: xx-large;
         font-weight: 700;
+        user-select: none;
       }
       #result {
         display: flex;
         justify-content: center;
         padding-top: 20px;
+        font-size: large;
       }
       .waiting {
         background-color: blue;
@@ -38,59 +40,70 @@
   </head>
   <body>
     <div id="screen" class="waiting">클릭해서 시작하세요</div>
-    <div id="result">여기가 기록창</div>
+    <div id="result"></div>
 
     <script>
       const $screen = document.querySelector("#screen");
       const $result = document.querySelector("#result");
 
-      let startTime;
-      let endTime;
+      let state = "waiting"; // waiting | starting | checking | result
+      let startTime = null;
+      let timeoutId = null;
 
       function responseCheck() {
-        waitingToStarting();
-        startingToChecking();
-        clicking();
+        if (state === "waiting") {
+          startGame();
+        } else if (state === "starting") {
+          tooFast();
+        } else if (state === "checking") {
+          finishGame();
+        } else if (state === "result") {
+          reset();
+        }
       }
 
-      function waitingToStarting() {
+      function startGame() {
+        state = "starting";
         screenChange("waiting", "starting");
         $screen.textContent = "초록색이 되면 클릭하세요";
-      }
 
-      function startingToChecking() {
-        setTimeout(() => {
+        timeoutId = setTimeout(() => {
+          state = "checking";
           screenChange("starting", "checking");
+          $screen.textContent = "지금 클릭!";
           startTime = new Date();
-        }, randomCount());
+        }, randomDelay());
       }
 
-      function clicking() {
-        if (endTime) {
-          startTime = null;
-          endTime = null;
-        }
+      function tooFast() {
+        clearTimeout(timeoutId);
+        alert("너무 빨랐어요!");
+        reset();
+      }
 
-        if (startTime) {
-          endTime = new Date();
-          let time = (endTime - startTime) / 1000;
-          $result.textContent = `당신의 반응 속도는 ${time}초입니다.`;
-          console.log(time);
-        } else {
-          $result.textContent = `너무 빨랐어요.`;
-        }
+      function finishGame() {
+        const endTime = new Date();
+        const reactionTime = ((endTime - startTime) / 1000).toFixed(3);
+        $result.textContent = `당신의 반응 속도는 ${reactionTime}초입니다.`;
+        state = "result";
+      }
+
+      function reset() {
+        state = "waiting";
         startTime = null;
-        endTime = null;
-      }
-
-      function randomCount() {
-        let count = 3 + Math.random() * 17 * 1000;
-        return count;
+        timeoutId = null;
+        $screen.className = "waiting";
+        $screen.textContent = "클릭해서 시작하세요";
+        $result.textContent = "";
       }
 
       function screenChange(removeClass, addClass) {
         $screen.classList.remove(removeClass);
         $screen.classList.add(addClass);
+      }
+
+      function randomDelay() {
+        return 2000 + Math.random() * 3000;
       }
 
       $screen.addEventListener("click", responseCheck);
