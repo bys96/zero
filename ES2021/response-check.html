@@ -49,6 +49,7 @@
       let state = "waiting"; // waiting | starting | checking | result
       let startTime = null;
       let timeoutId = null;
+      let records = [];
 
       function responseCheck() {
         if (state === "waiting") {
@@ -83,9 +84,18 @@
 
       function finishGame() {
         const endTime = new Date();
-        const reactionTime = ((endTime - startTime) / 1000).toFixed(3);
-        $result.textContent = `당신의 반응 속도는 ${reactionTime}초입니다.`;
+        const reactionTime = endTime - startTime;
+
+        records.push(reactionTime);
+
+        renderResult();
         state = "result";
+      }
+
+      function renderResult() {
+        $result.innerHTML = records
+          .map((time, idx) => `${idx + 1}회: ${(time / 1000).toFixed(3)}초`)
+          .join("<br>");
       }
 
       function reset() {
@@ -94,7 +104,6 @@
         timeoutId = null;
         $screen.className = "waiting";
         $screen.textContent = "클릭해서 시작하세요";
-        $result.textContent = "";
       }
 
       function screenChange(removeClass, addClass) {
