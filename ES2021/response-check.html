@@ -90,13 +90,16 @@
 
         renderResult();
         state = "result";
-        $screen.textContent = "클릭 시 첫 화면으로 돌아갑니다.";
+        $screen.textContent = "측정완료! 클릭 시 첫 화면으로 돌아갑니다.";
       }
 
       function renderResult() {
         $result.innerHTML = records
           .map((time, idx) => `${idx + 1}회: ${(time / 1000).toFixed(3)}초`)
           .join("<br>");
+        $result.innerHTML += `<br>평균 반응속도는 ${(
+          records.reduce((acc, time) => acc + time / 1000, 0) / records.length
+        ).toFixed(3)}초 입니다.<br>`;
       }
 
       function reset() {
