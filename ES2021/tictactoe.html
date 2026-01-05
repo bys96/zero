@@ -16,6 +16,22 @@
         height: 40px;
         text-align: center;
       }
+      div {
+        width: 120px;
+        text-align: center;
+        background-color: cadetblue;
+        color: white;
+        font-size: 16px;
+        font-weight: 700;
+        padding: 5px 0;
+      }
+      div:empty {
+        display: none;
+      }
+      button {
+        width: 80px;
+        margin: 10px 20px;
+      }
     </style>
   </head>
   <body>
@@ -23,15 +39,24 @@
       let row = 3;
       let turn = ["O", "X"];
       let turnCount = 0;
-      const data = Array.from({ length: row }, () => []);
+      let isEnd = false;
+      const data = [];
       const $table = document.createElement("table");
+      const $reuslt = document.createElement("div");
+      const $button = document.createElement("button");
       document.body.append($table);
+      document.body.append($button);
+      document.body.append($reuslt);
+
       for (let i = 0; i < row; i++) {
         const $tr = document.createElement("tr");
+        const cells = [];
         $table.append($tr);
         for (let j = 0; j < row; j++) {
           const $td = document.createElement("td");
+          cells.push($td);
           $td.addEventListener("click", (e) => {
+            if (isEnd) return;
             if (e.target.textContent) return;
 
             turnCount++;
@@ -39,18 +64,68 @@
 
             console.log(turnCount);
             setTimeout(() => {
-              if (false) {
-                //  승리일때
+              if (checkBingo()) {
+                isEnd = true;
+                $reuslt.textContent = `${turn[(turnCount - 1) % 2]} 승리`;
               } else if (turnCount == row ** 2) {
-                alert("비김");
+                $reuslt.textContent = "무승부";
               }
             }, 0);
           });
           $tr.append($td);
         }
+        data.push(cells);
+      }
+      console.log(data);
+
+      function checkBingo() {
+        // 행
+        for (let i = 0; i < row; i++) {
+          const first = data[i][0].textContent;
+          if (first && data[i].every((v) => v.textContent === first)) {
+            return true;
+          }
+        }
+
+        // 열
+        for (let i = 0; i < row; i++) {
+          const first = data[0][i].textContent;
+          if (first && data.every((r) => r[i].textContent === first)) {
+            return true;
+          }
+        }
+
+        // 대각선 ↙
+        first = data[0][row - 1].textContent;
+        if (
+          first &&
+          data.every((r, i) => r[row - 1 - i].textContent === first)
+        ) {
+          return true;
+        }
+
+        // 대각선 ↘
+        first = data[0][0].textContent;
+        if (first && data.every((r, i) => r[i].textContent === first)) {
+          return true;
+        }
+
+        return false;
       }
 
-      function checkBingo() {}
+      $button.textContent = "다시 하기";
+      $button.addEventListener("click", reset);
+
+      function reset() {
+        turnCount = 0;
+        isEnd = false;
+        $reuslt.textContent = "";
+        data.forEach((dataRow) => {
+          dataRow.forEach((dataCell) => {
+            dataCell.textContent = "";
+          });
+        });
+      }
     </script>
   </body>
 </html>
