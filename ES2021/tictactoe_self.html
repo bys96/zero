@@ -15,7 +15,6 @@
         width: 40px;
         height: 40px;
         text-align: center;
-        cursor: pointer;
       }
       div {
         width: 120px;
@@ -57,11 +56,8 @@
           const $td = document.createElement("td");
           cells.push($td);
           $td.addEventListener("click", (e) => {
-            // 게임 종료시 리턴
             if (isEnd) return;
-            // 빈칸 아닐시 리턴
             if (e.target.textContent) return;
-            // O 아닐시 리턴(컴퓨터 차례)
 
             turnCount++;
             e.target.textContent = turn[(turnCount - 1) % 2];
@@ -73,14 +69,6 @@
                 $reuslt.textContent = `${turn[(turnCount - 1) % 2]} 승리`;
               } else if (turnCount == row ** 2) {
                 $reuslt.textContent = "무승부";
-                isEnd = true;
-              } else if ((turnCount - 1) % 2 == 0) {
-                //여기에 컴퓨터로직
-                myTurn = false;
-
-                setTimeout(() => {
-                  randomClick();
-                }, Math.round(Math.random() * 3000));
               }
             }, 0);
           });
@@ -137,17 +125,6 @@
             dataCell.textContent = "";
           });
         });
-      }
-
-      function randomClick() {
-        let arr = data.flat().filter((v) => !v.textContent);
-        let len = arr.length;
-        let randomIdx = Math.floor(Math.random() * len);
-        let cell = arr[randomIdx];
-        cell.click();
-
-        // const index = data.flat().indexOf(cell);
-        // console.log(index + "눌렀어용");
       }
     </script>
   </body>
