@@ -41,6 +41,7 @@
       let turn = ["O", "X"];
       let turnCount = 0;
       let isEnd = false;
+      let clickable = true;
       const data = [];
       const $table = document.createElement("table");
       const $reuslt = document.createElement("div");
@@ -62,7 +63,9 @@
             // 빈칸 아닐시 리턴
             if (e.target.textContent) return;
             // O 아닐시 리턴(컴퓨터 차례)
+            if (!clickable) return;
 
+            clickable = false;
             turnCount++;
             e.target.textContent = turn[(turnCount - 1) % 2];
 
@@ -76,11 +79,13 @@
                 isEnd = true;
               } else if ((turnCount - 1) % 2 == 0) {
                 //여기에 컴퓨터로직
-                myTurn = false;
 
                 setTimeout(() => {
+                  clickable = true;
                   randomClick();
-                }, Math.round(Math.random() * 3000));
+                }, Math.round(Math.random() * 1000) + 1000);
+              } else {
+                clickable = true;
               }
             }, 0);
           });
@@ -131,6 +136,7 @@
       function reset() {
         turnCount = 0;
         isEnd = false;
+        clickable = true;
         $reuslt.textContent = "";
         data.forEach((dataRow) => {
           dataRow.forEach((dataCell) => {
