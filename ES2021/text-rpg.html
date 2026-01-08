@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>텍스트알피지</title>
+
+    <style>
+      #hero-stat {
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form id="start-screen">
+      <input id="name-input" placeholder="주인공 이름을 입력하세요!" />
+      <button id="start">시작</button>
+    </form>
+    <div id="screen" style="display: none">
+      <div id="hero-stat">
+        <span>이름 : <span id="hero-name"></span></span><br />
+        <span>레벨 : <span id="hero-level"></span></span><br />
+        <span
+          >HP : <span id="hero-hp"></span>/<span id="hero-max-hp"></span></span
+        ><br />
+        <span
+          >경험치 : <span id="hero-xp"></span>/<span
+            id="hero-max-xp"
+          ></span></span
+        ><br />
+        <span>공격력 : <span id="hero-att"></span></span><br />
+      </div>
+      <form id="game-menu">
+        <div id="menu-1">1.모험</div>
+        <div id="menu-2">2.휴식</div>
+        <div id="menu-3">3.종료</div>
+        <input id="menu-input" />
+        <button id="menu-button">입력</button>
+      </form>
+      <form id="battle-menu" style="display: none">
+        <div id="battle-1">1.공격</div>
+        <div id="battle-2">2.회복</div>
+        <div id="battle-3">3.도망</div>
+        <input id="battle-input" />
+        <button id="battle-button">입력</button>
+      </form>
+      <div id="message"></div>
+      <div id="monster-stat">
+        <span id="monster-name"></span>
+        <span id="monster-hp"></span>
+        <span id="monster-att"></span>
+      </div>
+    </div>
+
+    <script>
+      const $nameInput = document.querySelector("#name-input");
+      const $startScreen = document.querySelector("#start-screen");
+      const $screen = document.querySelector("#screen");
+      const $heroName = document.querySelector("#hero-name");
+      const $heroLevel = document.querySelector("#hero-level");
+      const $heroHp = document.querySelector("#hero-hp");
+      const $heroMaxHp = document.querySelector("#hero-max-hp");
+      const $heroXp = document.querySelector("#hero-xp");
+      const $heroMaxXp = document.querySelector("#hero-max-xp");
+      const $heroAtt = document.querySelector("#hero-att");
+
+      const $monsterName = document.querySelector("#monster-name");
+      const $monsterHp = document.querySelector("#monster-hp");
+      const $monsterAtt = document.querySelector("#monster-att");
+
+      const $gameMenu = document.querySelector("#game-menu");
+      const $menuInput = document.querySelector("#menu-input");
+      const $battleMenu = document.querySelector("#battle-menu");
+      const $battleInput = document.querySelector("#battle-input");
+      const $message = document.querySelector("#message");
+
+      const hero = {
+        name: "",
+        level: 1,
+        hp: 100,
+        maxHp: 100,
+        xp: 0,
+        maxXp: 15,
+        att: 10,
+      };
+
+      let monster = "";
+      const monsterList = [
+        { name: "슬라임", hp: 25, att: 10, xp: 10 },
+        { name: "스켈레톤", hp: 50, att: 15, xp: 20 },
+        { name: "마왕", hp: 150, att: 35, xp: 50 },
+      ];
+
+      const changeScreen = (before, after) => {
+        before.style.display = "none";
+        after.style.display = "block";
+      };
+
+      const heroStatChange = () => {
+        hero.hp = Math.min(hero.hp, hero.maxHp);
+        while (hero.xp >= hero.maxXp) {
+          hero.level++;
+          hero.xp -= hero.maxXp;
+          hero.maxXp = 15 * hero.level;
+        }
+
+        $heroLevel.textContent = hero.level;
+        $heroHp.textContent = hero.hp;
+        $heroMaxHp.textContent = hero.maxHp;
+        $heroXp.textContent = hero.xp;
+        $heroMaxXp.textContent = hero.maxXp;
+        $heroAtt.textContent = hero.att;
+      };
+
+      const monsterStatChange = () => {
+        $monsterHp.textContent = `HP : ${monster.hp}/${monster.maxHp}`;
+
+        if (!monster.hp) {
+          $monsterName.textContent = "";
+          $monsterHp.textContent = "";
+          $monsterAtt.textContent = "";
+        }
+      };
+
+      const attack = (from, to) => {
+        $message.textContent = `${from.name}의 공격! ${from.att}의 데미지`;
+        to.hp = Math.max(to.hp - from.att, 0);
+        if (to.hp == 0) {
+          if (to == "monster") {
+            $message.textContent = `${to.name}은 쓰러졌다. xp ${to.xp}획득`;
+            from.xp += to.xp;
+          } else if (to == "hero") {
+            $message.textContent`사망하였습니다.`;
+            alert("사망하였습니다.");
+          }
+        }
+        heroStatChange();
+        monsterStatChange();
+      };
+
+      $startScreen.addEventListener("submit", (e) => {
+        e.preventDefault();
+        $heroName.textContent = e.target["name-input"].value;
+        hero.name = e.target["name-input"].value;
+        console.log(`입력된 이름 : ${e.target["name-input"].value}`);
+
+        changeScreen($startScreen, $screen);
+        heroStatChange();
+        $menuInput.focus();
+      });
+
+      $gameMenu.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const inputEl = e.target["menu-input"];
+        const input = inputEl.value;
+        if (input === "1" || input.includes("모험")) {
+          changeScreen($gameMenu, $battleMenu);
+          monster = JSON.parse(
+            JSON.stringify(
+              monsterList[Math.floor(Math.random() * monsterList.length)]
+            )
+          );
+
+          monster.maxHp = monster.hp;
+          $monsterName.textContent = monster.name;
+          $monsterHp.textContent = `HP : ${monster.hp}/${monster.maxHp}`;
+          $monsterAtt.textContent = monster.att;
+
+          $battleInput.focus();
+        } else if (input === "2" || input.includes("휴식")) {
+        } else if (input === "3" || input.includes("종료")) {
+        }
+
+        inputEl.value = "";
+      });
+
+      $battleMenu.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const inputEl = e.target["battle-input"];
+        const input = inputEl.value;
+        if (input === "1" || input.includes("공격")) {
+          inputEl.disabled = true;
+          attack(hero, monster);
+          if (monster.hp > 0) {
+            setTimeout(() => {
+              attack(monster, hero);
+              inputEl.disabled = false;
+              inputEl.focus();
+            }, 1000);
+          } else {
+            inputEl.disabled = false;
+            inputEl.focus();
+          }
+        } else if (input === "2" || input.includes("회복")) {
+          inputEl.disabled = true;
+          hero.hp += 20;
+          heroStatChange();
+          $message.textContent = `20의 hp 회복. 현재 체력 ${hero.hp}`;
+          setTimeout(() => {
+            attack(monster, hero);
+            inputEl.disabled = false;
+            inputEl.focus();
+          }, 1000);
+        } else if (input === "3" || input.includes("도망")) {
+          monster = "";
+          monsterStatChange();
+          changeScreen($battleMenu, $gameMenu);
+          $menuInput.focus();
+        }
+        inputEl.value = "";
+      });
+
+      $nameInput.focus();
+    </script>
+  </body>
+</html>
