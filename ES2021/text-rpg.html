@@ -116,7 +116,7 @@
       const monsterStatChange = () => {
         $monsterHp.textContent = `HP : ${monster.hp}/${monster.maxHp}`;
 
-        if (!monster.hp) {
+        if (monster.hp == undefined || monster == "") {
           $monsterName.textContent = "";
           $monsterHp.textContent = "";
           $monsterAtt.textContent = "";
@@ -126,15 +126,6 @@
       const attack = (from, to) => {
         $message.textContent = `${from.name}의 공격! ${from.att}의 데미지`;
         to.hp = Math.max(to.hp - from.att, 0);
-        if (to.hp == 0) {
-          if (to == "monster") {
-            $message.textContent = `${to.name}은 쓰러졌다. xp ${to.xp}획득`;
-            from.xp += to.xp;
-          } else if (to == "hero") {
-            $message.textContent`사망하였습니다.`;
-            alert("사망하였습니다.");
-          }
-        }
         heroStatChange();
         monsterStatChange();
       };
@@ -183,16 +174,32 @@
         if (input === "1" || input.includes("공격")) {
           inputEl.disabled = true;
           attack(hero, monster);
-          if (monster.hp > 0) {
-            setTimeout(() => {
+
+          setTimeout(() => {
+            if (monster.hp > 0) {
               attack(monster, hero);
-              inputEl.disabled = false;
-              inputEl.focus();
-            }, 1000);
-          } else {
-            inputEl.disabled = false;
-            inputEl.focus();
-          }
+              if (hero.hp == 0) {
+                setTimeout(() => {
+                  $message.textContent = `사망하였습니다. 새로고침하여 다시 시작하세요`;
+                }, 1000);
+              } else {
+                inputEl.disabled = false;
+                inputEl.focus();
+              }
+            } else {
+              $message.textContent = `${monster.name}은 쓰러졌다. xp ${monster.xp}획득`;
+              hero.xp += monster.xp;
+              heroStatChange();
+              setTimeout(() => {
+                monster = "";
+                monsterStatChange();
+                changeScreen($battleMenu, $gameMenu);
+
+                inputEl.disabled = false;
+                inputEl.focus();
+              }, 1000);
+            }
+          }, 1000);
         } else if (input === "2" || input.includes("회복")) {
           inputEl.disabled = true;
           hero.hp += 20;
