@@ -85,7 +85,7 @@
         att: 10,
       };
 
-      let monster = "";
+      let monster = null;
       const monsterList = [
         { name: "슬라임", hp: 25, att: 10, xp: 10 },
         { name: "스켈레톤", hp: 50, att: 15, xp: 20 },
@@ -103,6 +103,9 @@
           hero.level++;
           hero.xp -= hero.maxXp;
           hero.maxXp = 15 * hero.level;
+          hero.maxHp = 90 + hero.level * 10;
+          hero.hp = hero.maxHp;
+          hero.att = 5 + hero.level * 5;
         }
 
         $heroLevel.textContent = hero.level;
@@ -114,12 +117,14 @@
       };
 
       const monsterStatChange = () => {
-        $monsterHp.textContent = `HP : ${monster.hp}/${monster.maxHp}`;
-
-        if (monster.hp == undefined || monster == "") {
+        if (!monster) {
           $monsterName.textContent = "";
           $monsterHp.textContent = "";
           $monsterAtt.textContent = "";
+
+          $message.textContent = "";
+        } else {
+          $monsterHp.textContent = `HP : ${monster.hp}/${monster.maxHp}`;
         }
       };
 
@@ -160,7 +165,15 @@
 
           $battleInput.focus();
         } else if (input === "2" || input.includes("휴식")) {
+          hero.hp = hero.maxHp;
+          heroStatChange();
+          $message.textContent = "HP가 모두 회복되었습니다.";
+          inputEl.focus();
         } else if (input === "3" || input.includes("종료")) {
+          if (confirm("게임을 종료할까요?")) {
+            location.reload();
+          }
+          inputEl.focus();
         }
 
         inputEl.value = "";
@@ -191,12 +204,12 @@
               hero.xp += monster.xp;
               heroStatChange();
               setTimeout(() => {
-                monster = "";
+                monster = null;
                 monsterStatChange();
                 changeScreen($battleMenu, $gameMenu);
 
                 inputEl.disabled = false;
-                inputEl.focus();
+                $menuInput.focus();
               }, 1000);
             }
           }, 1000);
@@ -211,9 +224,10 @@
             inputEl.focus();
           }, 1000);
         } else if (input === "3" || input.includes("도망")) {
-          monster = "";
+          monster = null;
           monsterStatChange();
           changeScreen($battleMenu, $gameMenu);
+          $message.textContent = "도망쳤다.";
           $menuInput.focus();
         }
         inputEl.value = "";
