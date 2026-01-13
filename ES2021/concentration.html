@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카드 짝맞추기</title>
+
+    <style>
+      #wrapper {
+        width: 400px;
+      }
+
+      .card {
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        width: 70px;
+        height: 100px;
+        perspective: 140px;
+      }
+
+      .card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+
+      .card.flipped .card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .card-front {
+        background-color: navy;
+      }
+
+      .card-front,
+      .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 1px solid black;
+        backface-visibility: hidden;
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper"></div>
+
+    <script>
+      const $wrapper = document.querySelector("#wrapper");
+
+      const total = 12;
+      const colors = ["red", "orange", "yellow", "green", "beige", "pink"];
+      let colorCopy = colors.concat(colors);
+      let shuffled = [];
+
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+      const shuffle = () => {
+        while (colorCopy.length > 0) {
+          const randomIndex = Math.floor(Math.random() * colorCopy.length);
+          const spliced = colorCopy.splice(randomIndex, 1);
+          shuffled = shuffled.concat(spliced);
+        }
+      };
+
+      const createCard = (i) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        const cardInner = document.createElement("div");
+        cardInner.className = "card-inner";
+        const cardFront = document.createElement("div");
+        cardFront.className = "card-front";
+        const cardBack = document.createElement("div");
+        cardBack.className = "card-back";
+        cardBack.style.backgroundColor = shuffled[i];
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        card.appendChild(cardInner);
+        return card;
+      };
+
+      const allCardFlip = async () => {
+        const $cardAll = document.querySelectorAll(".card");
+
+        for (const c of $cardAll) {
+          c.classList.add("flipped");
+        }
+
+        await delay(3000); // 3초공개
+
+        for (const c of $cardAll) {
+          c.classList.remove("flipped");
+        }
+      };
+
+      const startGame = async () => {
+        shuffle();
+        for (let i = 0; i < total; i++) {
+          const card = createCard(i);
+          $wrapper.appendChild(card);
+        }
+        await delay(1000);
+        allCardFlip();
+      };
+
+      startGame();
+    </script>
+  </body>
+</html>
