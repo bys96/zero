@@ -60,6 +60,8 @@
       const colors = ["red", "orange", "yellow", "green", "beige", "pink"];
       let colorCopy = colors.concat(colors);
       let shuffled = [];
+      let cardArr = [];
+      let clickable = false;
 
       const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -74,6 +76,7 @@
       const createCard = (i) => {
         const card = document.createElement("div");
         card.className = "card";
+        card.dataset.color = shuffled[i];
         const cardInner = document.createElement("div");
         cardInner.className = "card-inner";
         const cardFront = document.createElement("div");
@@ -99,6 +102,9 @@
         for (const c of $cardAll) {
           c.classList.remove("flipped");
         }
+        await delay(1000);
+
+        clickable = true;
       };
 
       const startGame = async () => {
@@ -107,11 +113,49 @@
           const card = createCard(i);
           $wrapper.appendChild(card);
         }
-        await delay(1000);
+        await delay(500);
         allCardFlip();
       };
 
+      function checkColor() {
+        let c1 = cardArr[0];
+        let c2 = cardArr[1];
+
+        if (c1.dataset.color != c2.dataset.color) {
+          c1.classList.remove("flipped");
+          c2.classList.remove("flipped");
+        }
+        cardArr = [];
+      }
+
+      function isFinished() {
+        const $cardAll = document.querySelectorAll(".card");
+        return [...$cardAll].every((v) => v.classList.contains("flipped"));
+      }
+
       startGame();
+
+      $wrapper.addEventListener("click", async (e) => {
+        const front = e.target.closest(".card-front");
+        if (!clickable) return;
+        if (!front) return;
+        if (cardArr.length == 2) return;
+
+        const c = front.closest(".card");
+
+        if (cardArr.includes(c)) return;
+
+        c.classList.toggle("flipped");
+        cardArr.push(c);
+
+        if (cardArr.length == 2) {
+          await delay(1000);
+          checkColor();
+          if (isFinished()) {
+            alert("게임 종료");
+          }
+        }
+      });
     </script>
   </body>
 </html>
