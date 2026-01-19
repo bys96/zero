@@ -26,6 +26,7 @@
         text-align: center;
         transition: transform 0.8s;
         transform-style: preserve-3d;
+        cursor: pointer;
       }
 
       .card.flipped .card-inner {
@@ -48,6 +49,11 @@
       .card-back {
         transform: rotateY(180deg);
       }
+
+      .time-log {
+        text-align: center;
+        width: 340px;
+      }
     </style>
   </head>
   <body>
@@ -55,6 +61,7 @@
 
     <script>
       const $wrapper = document.querySelector("#wrapper");
+      const $timeLog = document.createElement("div");
 
       const total = 12;
       const colors = ["red", "orange", "yellow", "green", "beige", "pink"];
@@ -62,6 +69,7 @@
       let shuffled = [];
       let cardArr = [];
       let clickable = false;
+      let startTime;
 
       const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -102,9 +110,10 @@
         for (const c of $cardAll) {
           c.classList.remove("flipped");
         }
-        await delay(1000);
+        await delay(500);
 
         clickable = true;
+        startTime = new Date();
       };
 
       const startGame = async () => {
@@ -113,6 +122,10 @@
           const card = createCard(i);
           $wrapper.appendChild(card);
         }
+
+        $timeLog.className = "time-log";
+        $wrapper.appendChild($timeLog);
+
         await delay(500);
         allCardFlip();
       };
@@ -149,10 +162,11 @@
         cardArr.push(c);
 
         if (cardArr.length == 2) {
-          await delay(1000);
+          await delay(500);
           checkColor();
           if (isFinished()) {
-            alert("게임 종료");
+            let endTime = new Date();
+            $timeLog.textContent = `${(endTime - startTime) / 1000}초`;
           }
         }
       });
