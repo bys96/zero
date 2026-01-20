@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>지뢰찾기</title>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+      td {
+        border: 1px solid #bbb;
+        text-align: center;
+        line-height: 20px;
+        width: 20px;
+        height: 20px;
+        font-size: 14px;
+        background: #888;
+        padding: 0;
+        cursor: pointer;
+        user-select: none;
+      }
+      td.opened {
+        background: white;
+      }
+      td.flag {
+        background: red;
+      }
+      td.question {
+        background: orange;
+      }
+    </style>
+  </head>
+  <body>
+    <table id="table">
+      <tbody></tbody>
+    </table>
+    <div id="result"></div>
+    <script>
+      const $tbody = document.querySelector("#table tbody");
+      const $result = document.querySelector("#result");
+
+      const row = 10;
+      const cell = 10;
+      const mine = 10;
+      const CODE = {
+        NORMAL: -1,
+        QUESTION: -2,
+        FLAG: -3,
+        QUESTION_MINE: -4,
+        FLAG_MINE: -5,
+        MINE: -6,
+        OPENED: 0, // 0이상이면 오픈
+      };
+      let data = [];
+      let isGameOver = false;
+      let openedCount = 0;
+      let startTime;
+
+      function createData() {
+        for (let i = 0; i < row; i++) {
+          let rowArr = new Array(cell).fill(CODE.NORMAL);
+          data.push(rowArr);
+        }
+      }
+
+      function plantMine() {
+        let randomArray = new Array(row * cell).fill().map((arr, i) => i);
+        let shuffled = [];
+        while (randomArray.length > row * cell - mine) {
+          let chosen = randomArray.splice(
+            Math.floor(Math.random() * randomArray.length),
+            1,
+          );
+          shuffled.push(...chosen);
+        }
+
+        for (let shuffleNumber of shuffled) {
+          let ver = Math.floor(shuffleNumber / cell);
+          let hor = shuffleNumber % cell;
+          data[ver][hor] = CODE.MINE;
+        }
+        console.log(shuffled);
+      }
+
+      function drawTable() {
+        for (let i = 0; i < row; i++) {
+          const rowLine = document.createElement("tr");
+          $tbody.appendChild(rowLine);
+          for (let j = 0; j < cell; j++) {
+            const cellLine = document.createElement("td");
+            //여기에 클릭시 이벤트 넣기
+            cellLine.addEventListener("click", () => onLeftClick(i, j));
+            cellLine.addEventListener("contextmenu", (e) =>
+              onRightClick(i, j, e),
+            );
+            rowLine.appendChild(cellLine);
+          }
+        }
+      }
+
+      function onLeftClick(i, j) {
+        if (isGameOver) return;
+        const td = $tbody.children[i].children[j];
+        let dx = [-1, 0, 1];
+        let dy = [-1, 0, 1];
+        if (td.classList.contains("opened")) return;
+
+        if (data[i][j] == CODE.NORMAL) {
+          let mineCount = 0;
+
+          for (let x of dx) {
+            for (let y of dy) {
+              let di = i + x;
+              let dj = j + y;
+              if (di < 0 || di >= row || dj < 0 || dj >= cell) continue;
+              if (
+                data[di][dj] == CODE.MINE ||
+                data[di][dj] == CODE.FLAG_MINE ||
+                data[di][dj] == CODE.QUESTION_MINE
+              )
+                mineCount++;
+            }
+          }
+
+          td.textContent = mineCount || "";
+          td.classList.add("opened");
+          openedCount++;
+          data[i][j] = mineCount;
+
+          if (openedCount == 1) startTime = new Date();
+
+          if (openedCount == row * cell - mine) {
+            let endTime = new Date();
+
+            $result.textContent = `Clear!! ${(endTime - startTime) / 1000}초 경과했습니다.`;
+            console.log(endTime - startTime);
+            showAllMines();
+            isGameOver = true;
+            return;
+          }
+
+          if (mineCount == 0) {
+            for (let x of dx) {
+              for (let y of dy) {
+                let di = i + x;
+                let dj = j + y;
+                if (di < 0 || di >= row || dj < 0 || dj >= cell) continue;
+                onLeftClick(di, dj);
+              }
+            }
+          }
+        } else if (data[i][j] == CODE.MINE) {
+          isGameOver = true;
+          $result.textContent = "패배";
+          showAllMines();
+        }
+      }
+
+      function onRightClick(i, j, e) {
+        e.preventDefault(); // 기존 우클릭 작동 중지
+        if (isGameOver) return;
+
+        const td = e.currentTarget;
+
+        if (td.classList.contains("opened")) return;
+
+        if (data[i][j] == CODE.NORMAL) {
+          data[i][j] = CODE.FLAG;
+          td.classList.add("flag");
+          td.textContent = "🏳️";
+        } else if (data[i][j] == CODE.FLAG) {
+          data[i][j] = CODE.QUESTION;
+          td.classList.remove("flag");
+          td.classList.add("question");
+          td.textContent = "❓";
+        } else if (data[i][j] == CODE.QUESTION) {
+          data[i][j] = CODE.NORMAL;
+          td.classList.remove("question");
+          td.textContent = "";
+        } else if (data[i][j] == CODE.MINE) {
+          data[i][j] = CODE.FLAG_MINE;
+          td.classList.add("flag");
+          td.textContent = "🏳️";
+        } else if (data[i][j] == CODE.FLAG_MINE) {
+          data[i][j] = CODE.QUESTION_MINE;
+          td.classList.remove("flag");
+          td.classList.add("question");
+          td.textContent = "❓";
+        } else if (data[i][j] == CODE.QUESTION_MINE) {
+          data[i][j] = CODE.MINE;
+          td.classList.remove("question");
+          td.textContent = "";
+        }
+      }
+
+      function showAllMines() {
+        for (let i = 0; i < row; i++) {
+          for (let j = 0; j < cell; j++) {
+            if (
+              data[i][j] === CODE.MINE ||
+              data[i][j] === CODE.FLAG_MINE ||
+              data[i][j] === CODE.QUESTION_MINE
+            ) {
+              const td = $tbody.children[i].children[j];
+              td.textContent = "💣";
+              td.classList.add("opened");
+            }
+          }
+        }
+
+        // 재시작 버튼 추가
+        const $restartButton = document.createElement("button");
+        $restartButton.style.display = "block";
+        $restartButton.textContent = "재시작";
+        $restartButton.addEventListener("click", resetGame);
+        $result.appendChild($restartButton);
+      }
+
+      function resetGame() {
+        data = [];
+        openedCount = 0;
+        isGameOver = false;
+        $tbody.innerHTML = "";
+        $result.innerHTML = "";
+
+        createData();
+        plantMine();
+        drawTable();
+      }
+
+      createData();
+      plantMine();
+      drawTable();
+    </script>
+  </body>
+</html>
