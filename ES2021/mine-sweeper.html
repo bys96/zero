@@ -58,7 +58,7 @@
       let isGameOver = false;
       let openedCount = 0;
       let startTime;
-      let timer = 0;
+      let interval;
 
       function createData() {
         for (let i = 0; i < row; i++) {
@@ -133,8 +133,10 @@
 
           if (openedCount == 1) {
             startTime = new Date();
-            setInterval(() => {
-              $timer.textContent = `${++timer}초`;
+
+            interval = setInterval(() => {
+              const time = Math.floor((new Date() - startTime) / 1000);
+              $timer.textContent = `${time}초`;
             }, 1000);
           }
 
@@ -217,12 +219,15 @@
           }
         }
 
+        clearInterval(interval);
+
         // 재시작 버튼 추가
         const $restartButton = document.createElement("button");
         $restartButton.style.display = "block";
         $restartButton.textContent = "재시작";
         $restartButton.addEventListener("click", resetGame);
         $result.appendChild($restartButton);
+        $timer.textContent = "0초";
       }
 
       function resetGame() {
