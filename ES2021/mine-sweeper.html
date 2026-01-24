@@ -29,22 +29,33 @@
       td.question {
         background: orange;
       }
+      form input {
+        width: 40px;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
+    <form id="form">
+      <input type="text" id="row" placeholder="가로줄" />
+      <input type="text" id="cell" placeholder="세로줄" />
+      <input type="text" id="mine" placeholder="지뢰" />
+      <button>생성</button>
+    </form>
     <div id="timer">0초</div>
     <table id="table">
       <tbody></tbody>
     </table>
     <div id="result"></div>
     <script>
+      const $form = document.querySelector("#form");
       const $timer = document.querySelector("#timer");
       const $tbody = document.querySelector("#table tbody");
       const $result = document.querySelector("#result");
 
-      const row = 10;
-      const cell = 10;
-      const mine = 10;
+      let row = 10;
+      let cell = 10;
+      let mine = 10;
       const CODE = {
         NORMAL: -1,
         QUESTION: -2,
@@ -59,6 +70,7 @@
       let openedCount = 0;
       let startTime;
       let interval;
+      let randomArray;
 
       function createData() {
         for (let i = 0; i < row; i++) {
@@ -68,7 +80,7 @@
       }
 
       function plantMine() {
-        let randomArray = new Array(row * cell).fill().map((arr, i) => i);
+        randomArray = new Array(row * cell).fill().map((arr, i) => i);
         let shuffled = [];
         while (randomArray.length > row * cell - mine) {
           let chosen = randomArray.splice(
@@ -98,6 +110,18 @@
               onRightClick(i, j, e),
             );
             rowLine.appendChild(cellLine);
+          }
+        }
+      }
+
+      // 개발용 지뢰 표시함수
+      function drawMine() {
+        for (let i = 0; i < row; i++) {
+          for (let j = 0; j < cell; j++) {
+            if (data[i][j] == -6) {
+              const td = $tbody.children[i].children[j];
+              td.textContent = "X";
+            }
           }
         }
       }
@@ -160,6 +184,20 @@
               }
             }
           }
+        } else if (data[i][j] == CODE.MINE && openedCount == 0) {
+          // 첫클릭시 지뢰면 지뢰 옮기기 //
+          data[i][j] = CODE.NORMAL;
+          let remine = randomArray.splice(
+            Math.floor(Math.random() * randomArray.length),
+            1,
+          )[0];
+          let ver = Math.floor(remine / cell);
+          let hor = remine % cell;
+          data[ver][hor] = CODE.MINE;
+          console.log("다시심고 다시클릭");
+          drawMine();
+          onLeftClick(i, j);
+          ////////////////////////////
         } else if (data[i][j] == CODE.MINE) {
           isGameOver = true;
           $result.textContent = "패배";
@@ -227,7 +265,6 @@
         $restartButton.textContent = "재시작";
         $restartButton.addEventListener("click", resetGame);
         $result.appendChild($restartButton);
-        $timer.textContent = "0초";
       }
 
       function resetGame() {
@@ -236,15 +273,47 @@
         isGameOver = false;
         $tbody.innerHTML = "";
         $result.innerHTML = "";
+        $timer.textContent = "0초";
+      }
 
+      function onSubmit(event) {
+        event.preventDefault();
+
+        let rowValue = event.target.row.value;
+        let cellValue = event.target.cell.value;
+        let mineValue = event.target.mine.value;
+        if (
+          Number.isNaN(Number(rowValue)) ||
+          Number.isNaN(Number(cellValue)) ||
+          Number.isNaN(Number(mineValue))
+        ) {
+          alert("숫자를 입력해주세요");
+          return;
+        }
+        if (
+          rowValue < 1 ||
+          cellValue < 1 ||
+          mineValue < 1 ||
+          rowValue * cellValue <= mineValue
+        ) {
+          alert("제대로된 숫자를 입력해주세요");
+          return;
+        }
+        clearInterval(interval);
+        resetGame();
+
+        row = parseInt(rowValue);
+        cell = parseInt(cellValue);
+        mine = parseInt(mineValue);
         createData();
         plantMine();
         drawTable();
+
+        ///개발용 지뢰 표시
+        drawMine();
       }
 
-      createData();
-      plantMine();
-      drawTable();
+      $form.addEventListener("submit", onSubmit);
     </script>
   </body>
 </html>
