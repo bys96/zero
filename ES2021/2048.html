@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2048</title>
+
+    <style>
+      #table {
+        border-collapse: collapse;
+        user-select: none;
+      }
+
+      #table td {
+        border: 10px solid #bbada0;
+        width: 120px;
+        min-width: 110px;
+        height: 128px;
+        font-size: 40px;
+        font-weight: bold;
+        box-sizing: border-box;
+        padding: 0;
+        text-align: center;
+      }
+      #score {
+        user-select: none;
+      }
+      .color-2 {
+        background-color: #eee4da;
+        color: #776e65;
+      }
+      .color-4 {
+        background-color: #eee1c9;
+        color: #776e65;
+      }
+      .color-8 {
+        background-color: #f3b27a;
+        color: white;
+      }
+      .color-16 {
+        background-color: #f66964;
+        color: white;
+      }
+      .color-32 {
+        background-color: #f77c5f;
+        color: white;
+      }
+      .color-64 {
+        background-color: #f75f3b;
+        color: white;
+      }
+      .color-128 {
+        background-color: #edd073;
+        color: #776e65;
+      }
+      .color-256 {
+        background-color: #edcc62;
+        color: #776e65;
+      }
+      .color-512 {
+        background-color: #edc950;
+        color: #776e65;
+      }
+      .color-1024 {
+        background-color: #edc53f;
+        color: #776e65;
+      }
+      .color-2048 {
+        background-color: #edc22e;
+        color: #776e65;
+      }
+    </style>
+  </head>
+  <body>
+    <table id="table"></table>
+    <div id="score">0</div>
+
+    <script>
+      const $table = document.getElementById("table");
+      const $score = document.getElementById("score");
+      let data = [];
+      let row = 5;
+      let cell = 5;
+
+      function makeData() {
+        data = new Array(row).fill().map((v) => new Array(cell).fill(0));
+      }
+
+      function draw() {
+        $table.innerHTML = "";
+
+        for (let i = 0; i < row; i++) {
+          const $tr = document.createElement("tr");
+          for (let j = 0; j < cell; j++) {
+            const $td = document.createElement("td");
+            $tr.append($td);
+          }
+          $table.append($tr);
+        }
+      }
+
+      function makeNewTwo() {
+        let zeroIndexes = data.flat().reduce((acc, v, i) => {
+          if (v == 0) acc.push(i);
+          return acc;
+        }, []);
+
+        let chosen = zeroIndexes.splice(
+          Math.floor(Math.random() * zeroIndexes.length),
+          1,
+        )[0];
+        let ver = Math.floor(chosen / row);
+        let hor = chosen % cell;
+
+        data[ver][hor] = 2;
+
+        const $td = $table.children[ver].children[hor];
+        $td.textContent = "2";
+        $td.className = `color-${data[ver][hor]}`;
+      }
+
+      function moveUp() {
+        for (let i = 1; i < row; i++) {
+          for (let j = 0; j < cell; j++) {
+            let a = i - 1;
+            let b = j;
+
+            while (a > 0 && data[a][b] == 0) {
+              a -= 1;
+            }
+            if (data[a][b] == data[i][j]) {
+              data[a][b] *= 2;
+            } else if (data[a][b] == 0) {
+              data[a][b] = data[i][j];
+            } else {
+              data[a + 1][b] = data[i][j];
+            }
+            data[i][j] = 0;
+          }
+        }
+      }
+
+      function startGame() {
+        makeData();
+        draw();
+        makeNewTwo();
+      }
+
+      startGame();
+    </script>
+  </body>
+</html>
