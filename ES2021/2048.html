@@ -79,8 +79,11 @@
       const $table = document.getElementById("table");
       const $score = document.getElementById("score");
       let data = [];
-      let row = 5;
-      let cell = 5;
+      let row = 4;
+      let cell = 4;
+      let score = 0;
+      let isGameWin = false;
+      let isGameOver = false;
 
       function makeData() {
         data = new Array(row).fill().map((v) => new Array(cell).fill(0));
@@ -109,42 +112,200 @@
           Math.floor(Math.random() * zeroIndexes.length),
           1,
         )[0];
-        let ver = Math.floor(chosen / row);
+        let ver = Math.floor(chosen / cell);
         let hor = chosen % cell;
 
         data[ver][hor] = 2;
-
-        const $td = $table.children[ver].children[hor];
-        $td.textContent = "2";
-        $td.className = `color-${data[ver][hor]}`;
       }
 
-      function moveUp() {
-        for (let i = 1; i < row; i++) {
+      function render() {
+        for (let i = 0; i < row; i++) {
           for (let j = 0; j < cell; j++) {
-            let a = i - 1;
-            let b = j;
-
-            while (a > 0 && data[a][b] == 0) {
-              a -= 1;
-            }
-            if (data[a][b] == data[i][j]) {
-              data[a][b] *= 2;
-            } else if (data[a][b] == 0) {
-              data[a][b] = data[i][j];
-            } else {
-              data[a + 1][b] = data[i][j];
-            }
-            data[i][j] = 0;
+            $table.children[i].children[j].textContent = data[i][j] || "";
+            $table.children[i].children[j].className =
+              `color-${data[i][j]}` || "";
           }
         }
+        $score.textContent = score;
+      }
+      ///////////////////////////////////////////
+      ///////////////////////////////////////////
+      //////////////////////////////////////////
+
+      function moveUp() {
+        for (let i = 0; i < cell; i++) {
+          let arr = [];
+
+          // 0 아닌 데이터 배열에 넣기
+          for (let j = 0; j < row; j++) {
+            if (data[j][i]) {
+              arr.push(data[j][i]);
+              data[j][i] = 0;
+            }
+          }
+
+          // 합치기
+          for (let j = 0; j < arr.length - 1; j++) {
+            if (arr[j] === arr[j + 1]) {
+              score += arr[j] * 2;
+              arr.splice(j, 2, arr[j] * 2);
+            }
+          }
+
+          // 다시 넣기
+          for (let j = 0; j < arr.length; j++) {
+            data[j][i] = arr[j];
+          }
+        }
+      }
+
+      function moveDown() {
+        for (let i = 0; i < cell; i++) {
+          let arr = [];
+
+          // 0 아닌 데이터 배열에 넣기
+          for (let j = row - 1; j >= 0; j--) {
+            if (data[j][i]) {
+              arr.push(data[j][i]);
+              data[j][i] = 0;
+            }
+          }
+
+          // 합치기
+          for (let j = 0; j < arr.length - 1; j++) {
+            if (arr[j] === arr[j + 1]) {
+              score += arr[j] * 2;
+              arr.splice(j, 2, arr[j] * 2);
+            }
+          }
+
+          // 다시 넣기
+          for (let j = 0; j < arr.length; j++) {
+            data[row - 1 - j][i] = arr[j];
+          }
+        }
+      }
+
+      function moveLeft() {
+        for (let i = 0; i < row; i++) {
+          let arr = [];
+
+          // 0 아닌 데이터 배열에 넣기
+          for (let j = 0; j < cell; j++) {
+            if (data[i][j]) {
+              arr.push(data[i][j]);
+              data[i][j] = 0;
+            }
+          }
+
+          // 합치기
+          for (let j = 0; j < arr.length - 1; j++) {
+            if (arr[j] === arr[j + 1]) {
+              score += arr[j] * 2;
+              arr.splice(j, 2, arr[j] * 2);
+            }
+          }
+
+          // 다시 넣기
+          for (let j = 0; j < arr.length; j++) {
+            data[i][j] = arr[j];
+          }
+        }
+      }
+
+      function moveRight() {
+        for (let i = 0; i < row; i++) {
+          let arr = [];
+
+          // 0 아닌 데이터 배열에 넣기
+          for (let j = cell - 1; j >= 0; j--) {
+            if (data[i][j]) {
+              arr.push(data[i][j]);
+              data[i][j] = 0;
+            }
+          }
+
+          // 합치기
+          for (let j = 0; j < arr.length - 1; j++) {
+            if (arr[j] === arr[j + 1]) {
+              score += arr[j] * 2;
+              arr.splice(j, 2, arr[j] * 2);
+            }
+          }
+
+          // 다시 넣기
+          for (let j = 0; j < arr.length; j++) {
+            data[i][cell - 1 - j] = arr[j];
+          }
+        }
+      }
+
+      //////////////////////////////////////////
+      //////////////////////////////////////////
+      //////////////////////////////////////////
+
+      function CheckGameWin() {
+        if (data.flat().includes(2048)) {
+          isGameWin = true;
+          alert("승리하였습니다.");
+        }
+      }
+
+      function checkGameOver() {
+        if (data.flat().includes(0)) return;
+
+        for (let i = 0; i < row; i++) {
+          for (let j = 0; j < cell; j++) {
+            let cur = data[i][j];
+            if ((data[i + 1] && data[i + 1][j] == cur) || data[i][j + 1] == cur)
+              // 아래존재확인, 아래랑 같거나 / 오른쪽 같으면 (움직일수있으면) 리턴
+              return;
+          }
+        }
+
+        isGameOver = true;
+        alert("패배하였습니다.");
       }
 
       function startGame() {
         makeData();
         draw();
         makeNewTwo();
+        render();
       }
+
+      window.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        if (isGameWin || isGameOver) return;
+
+        let prev = JSON.stringify(data);
+        console.log(prev);
+
+        switch (e.key) {
+          case "ArrowUp":
+            moveUp();
+            break;
+          case "ArrowDown":
+            moveDown();
+            break;
+          case "ArrowLeft":
+            moveLeft();
+            break;
+          case "ArrowRight":
+            moveRight();
+            break;
+        }
+
+        if (JSON.stringify(data) !== prev) {
+          makeNewTwo();
+        }
+        render(); // 렌더
+
+        requestAnimationFrame(() => {
+          checkGameOver();
+          CheckGameWin();
+        });
+      });
 
       startGame();
     </script>
