@@ -84,6 +84,7 @@
       let score = 0;
       let isGameWin = false;
       let isGameOver = false;
+      let startCoord;
 
       function makeData() {
         data = new Array(row).fill().map((v) => new Array(cell).fill(0));
@@ -275,11 +276,15 @@
       }
 
       window.addEventListener("keydown", (e) => {
+        if (
+          !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
+        )
+          return;
         e.preventDefault();
+
         if (isGameWin || isGameOver) return;
 
         let prev = JSON.stringify(data);
-        console.log(prev);
 
         switch (e.key) {
           case "ArrowUp":
@@ -294,6 +299,50 @@
           case "ArrowRight":
             moveRight();
             break;
+        }
+
+        if (JSON.stringify(data) !== prev) {
+          makeNewTwo();
+        }
+        render(); // 렌더
+
+        requestAnimationFrame(() => {
+          checkGameOver();
+          CheckGameWin();
+        });
+      });
+
+      window.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        if (isGameWin || isGameOver) return;
+
+        startCoord = [e.clientX, e.clientY];
+      });
+
+      window.addEventListener("mouseup", (e) => {
+        e.preventDefault();
+        if (isGameWin || isGameOver) return;
+        if (!startCoord) return;
+
+        let endCoord = [e.clientX, e.clientY];
+        let diffX = endCoord[0] - startCoord[0];
+        let diffY = endCoord[1] - startCoord[1];
+
+        startCoord = null;
+
+        // 미세 드래그 방지
+        if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10) return;
+
+        let prev = JSON.stringify(data);
+
+        if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY)) {
+          moveLeft();
+        } else if (diffX > 0 && Math.abs(diffX) > Math.abs(diffY)) {
+          moveRight();
+        } else if (diffY > 0 && Math.abs(diffX) < Math.abs(diffY)) {
+          moveDown();
+        } else if (diffY < 0 && Math.abs(diffX) < Math.abs(diffY)) {
+          moveUp();
         }
 
         if (JSON.stringify(data) !== prev) {
