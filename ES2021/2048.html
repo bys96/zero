@@ -74,14 +74,18 @@
   <body>
     <table id="table"></table>
     <div id="score">0</div>
+    <button id="back">되돌리기</button>
 
     <script>
       const $table = document.getElementById("table");
       const $score = document.getElementById("score");
+      const $back = document.getElementById("back");
+
       let data = [];
       let row = 4;
       let cell = 4;
       let score = 0;
+      let historyArr = [];
       let isGameWin = false;
       let isGameOver = false;
       let startCoord;
@@ -249,6 +253,7 @@
         if (data.flat().includes(2048)) {
           isGameWin = true;
           alert("승리하였습니다.");
+          $back.disabled = true;
         }
       }
 
@@ -266,6 +271,14 @@
 
         isGameOver = true;
         alert("패배하였습니다.");
+        $back.disabled = true;
+      }
+
+      function goBack() {
+        if (!historyArr.length) return;
+        const historyData = historyArr.pop();
+        data = JSON.parse(historyData.data);
+        score = historyData.score;
       }
 
       function startGame() {
@@ -285,6 +298,7 @@
         if (isGameWin || isGameOver) return;
 
         let prev = JSON.stringify(data);
+        historyArr.push({ data: prev, score: score });
 
         switch (e.key) {
           case "ArrowUp":
@@ -354,6 +368,12 @@
           checkGameOver();
           CheckGameWin();
         });
+      });
+
+      $back.addEventListener("click", () => {
+        if (isGameWin || isGameOver) return;
+        goBack();
+        render();
       });
 
       startGame();
