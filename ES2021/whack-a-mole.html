@@ -133,11 +133,36 @@
       const holes = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       let started = false;
       let score = 0;
-      let time = 10;
+      let time = 30;
       let interval;
 
       let gopherPercent = 0.3;
       let bombPercent = 0.5;
+
+      function tick() {
+        $$cells.forEach(($cell, idx) => {
+          let $gopher = $cell.querySelector(".gopher");
+          let $bomb = $cell.querySelector(".bomb");
+
+          if (holes[idx]) return;
+
+          holes[idx] = setTimeout(() => {
+            let randomNum = Math.random();
+            if (randomNum < gopherPercent) {
+              $gopher.classList.remove("hidden");
+              setTimeout(() => {
+                $gopher.classList.add("hidden");
+              }, 1000);
+            } else if (randomNum < bombPercent) {
+              $bomb.classList.remove("hidden");
+              setTimeout(() => {
+                $bomb.classList.add("hidden");
+              }, 1000);
+            }
+            holes[idx] = 0;
+          }, 1000);
+        });
+      }
 
       function timer() {
         let timerInterval = setInterval(() => {
@@ -147,6 +172,7 @@
 
           if (time == 0) {
             clearInterval(timerInterval);
+            clearInterval(interval);
             $timer.textContent = 0;
             alert(`시간종료, 점수는 ${score}점 입니다.`);
           }
@@ -157,9 +183,39 @@
         if (started) return;
         started = true;
         timer();
+
+        interval = setInterval(tick, 1000);
       }
 
+      ////////////////////////////////////////////////////
+      $timer.textContent = time;
+
       $start.addEventListener("click", gameStart);
+
+      $$cells.forEach(($cell, i) => {
+        $cell.addEventListener("click", (e) => {
+          let clicked = e.target;
+          if (clicked.classList.contains("gopher")) {
+            if (clicked.classList.contains("dead")) return;
+            score++;
+            clicked.classList.add("dead");
+            clearTimeout(holes[i]);
+            setTimeout(() => {
+              clicked.classList.remove("dead");
+            }, 1000);
+          } else if (clicked.classList.contains("bomb")) {
+            if (clicked.classList.contains("boom")) return;
+            score -= 10; // 목숨 넣으면 여기서 목숨 깎기
+            clicked.classList.add("boom");
+            clearTimeout(holes[i]);
+            setTimeout(() => {
+              clicked.classList.remove("boom");
+            }, 1000);
+          }
+
+          $score.textContent = score;
+        });
+      });
     </script>
   </body>
 </html>
