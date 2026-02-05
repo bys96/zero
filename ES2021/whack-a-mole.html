@@ -3,6 +3,13 @@
     <meta charset="UTF-8" />
     <title>두더지 잡기</title>
     <style>
+      #game {
+        user-select: none;
+      }
+      #life {
+        font-size: 25px;
+        margin-bottom: 10px;
+      }
       .cell {
         display: inline-block;
         position: relative;
@@ -58,7 +65,8 @@
   </head>
   <body>
     <div>
-      <span id="timer">8</span>초&nbsp; <span id="score">0</span>점
+      <div id="life">목숨</div>
+      <span id="timer">시간</span>초&nbsp; <span id="score">0</span>점
       <button id="start">시작</button>
     </div>
     <div id="game">
@@ -124,6 +132,7 @@
       </div>
     </div>
     <script>
+      const $life = document.querySelector("#life");
       const $timer = document.querySelector("#timer");
       const $score = document.querySelector("#score");
       const $game = document.querySelector("#game");
@@ -132,9 +141,12 @@
 
       const holes = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       let started = false;
+      let isGameEnd = false;
+      let life = 3;
       let score = 0;
       let time = 30;
-      let interval;
+      let tickInterval;
+      let timerInterval;
 
       let gopherPercent = 0.3;
       let bombPercent = 0.5;
@@ -165,18 +177,44 @@
       }
 
       function timer() {
-        let timerInterval = setInterval(() => {
+        timerInterval = setInterval(() => {
           time = (time * 10 - 1) / 10;
 
           $timer.textContent = Math.floor(time);
 
-          if (time == 0) {
+          if (time <= 0) {
+            isGameEnd = true;
             clearInterval(timerInterval);
-            clearInterval(interval);
+            clearInterval(tickInterval);
             $timer.textContent = 0;
-            alert(`시간종료, 점수는 ${score}점 입니다.`);
+            setTimeout(() => {
+              alert(`시간종료, 점수는 ${score}점 입니다.`);
+            }, 50);
           }
         }, 100);
+      }
+
+      function renderLifeScore() {
+        let remainHeart = "❤️";
+        let emptyHeart = "♡";
+        let lifeHeart = remainHeart.repeat(life) + emptyHeart.repeat(3 - life);
+        $life.textContent = lifeHeart;
+        $score.textContent = score;
+        $start.textContent = isGameEnd ? "재시작" : "시작";
+      }
+
+      function restart() {
+        //혹시나 남아있을 인터벌 지우기
+        clearInterval(timerInterval);
+        clearInterval(tickInterval);
+
+        started = false;
+        isGameEnd = false;
+        life = 3;
+        score = 0;
+        time = 30;
+        $timer.textContent = time;
+        renderLifeScore();
       }
 
       function gameStart() {
@@ -184,36 +222,55 @@
         started = true;
         timer();
 
-        interval = setInterval(tick, 1000);
+        tickInterval = setInterval(tick, 1000);
       }
 
       ////////////////////////////////////////////////////
       $timer.textContent = time;
 
-      $start.addEventListener("click", gameStart);
+      renderLifeScore();
+
+      $start.addEventListener("click", () => {
+        if (isGameEnd) restart();
+        else gameStart();
+      });
 
       $$cells.forEach(($cell, i) => {
         $cell.addEventListener("click", (e) => {
+          if (isGameEnd) return;
+
           let clicked = e.target;
           if (clicked.classList.contains("gopher")) {
             if (clicked.classList.contains("dead")) return;
             score++;
             clicked.classList.add("dead");
+            clicked.classList.add("hidden");
             clearTimeout(holes[i]);
             setTimeout(() => {
               clicked.classList.remove("dead");
             }, 1000);
           } else if (clicked.classList.contains("bomb")) {
             if (clicked.classList.contains("boom")) return;
-            score -= 10; // 목숨 넣으면 여기서 목숨 깎기
+            life = Math.max(0, life - 1);
             clicked.classList.add("boom");
+            clicked.classList.add("hidden");
             clearTimeout(holes[i]);
             setTimeout(() => {
               clicked.classList.remove("boom");
             }, 1000);
           }
 
-          $score.textContent = score;
+          renderLifeScore();
+
+          if (life == 0) {
+            isGameEnd = true;
+            clearInterval(timerInterval);
+            clearInterval(tickInterval);
+            setTimeout(() => {
+              alert(`목숨소진, 점수는 ${score}점 입니다.`);
+              renderLifeScore();
+            }, 50);
+          }
         });
       });
     </script>
